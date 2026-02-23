@@ -1,0 +1,75 @@
+endfield-market-tracker/
+├── src/
+│   ├── main.py
+│   ├── ui/
+│   │   ├── __init__.py
+│   │   ├── main_window.py
+│   │   ├── product_card.py
+│   │   └── styles.py
+│   ├── core/
+│   │   ├── __init__.py
+│   │   ├── ocr_engine.py
+│   │   ├── screen_capture.py
+│   │   ├── data_extractor.py
+│   │   └── analysis.py
+│   ├── database/
+│   │   ├── __init__.py
+│   │   ├── models.py
+│   │   └── manager.py
+│   └── utils/
+│       ├── __init__.py
+│       ├── constants.py
+│       └── config.py
+├── tests/
+│   ├── __init__.py
+│   └── test_core.py
+├── assets/
+│   ├── icons/
+│   │   └── __init__.py
+│   └── templates/
+│       └── __init__.py
+├── requirements.txt
+├── setup.py
+├── README.md
+├── LICENSE
+├── .gitignore
+├── BUILD_SUMMARY.md
+└── QUICKSTART.md
+
+endfield-market-tracker/
+├── src/
+│   ├── main.py
+│   ├── ui/
+│   │   ├── init.py
+│   │   ├── main_window.py
+│   │   ├── product_card.py
+│   │   └── styles.py
+│   ├── core/
+│   │   ├── init.py
+│   │   ├── ocr_engine.py
+│   │   ├── screen_capture.py
+│   │   ├── data_extractor.py
+│   │   └── analysis.py
+│   ├── database/
+│   │   ├── init.py
+│   │   ├── models.py
+│   │   └── manager.py
+│   └── utils/
+│       ├── init.py
+│       ├── constants.py
+│       └── config.py
+├── tests/
+│   ├── init.py
+│   └── test_core.py
+├── assets/
+│   ├── icons/
+│   │   └── init.py
+│   └── templates/
+│       └── init.py
+├── requirements.txt
+├── setup.py
+├── README.md
+├── LICENSE
+├── .gitignore
+├── BUILD_SUMMARY.md
+└── QUICKSTART.md
