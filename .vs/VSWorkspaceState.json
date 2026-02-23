@@ -5,8 +5,9 @@
     "\\src\\core",
     "\\src\\database",
     "\\src\\ui",
-    "\\src\\utils"
+    "\\src\\utils",
+    "\\tests"
   ],
-  "SelectedNode": "\\src\\core\\capture_worker.py",
+  "SelectedNode": "\\src\\utils\\constants.py",
   "PreviewInSolutionExplorer": false
 }

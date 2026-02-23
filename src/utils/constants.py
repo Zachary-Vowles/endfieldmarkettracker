@@ -60,20 +60,21 @@ CAPTURE_SETTINGS = {
 
 # UI Regions for OCR - CALIBRATED FOR 2560x1440 FULLSCREEN
 # These are absolute pixel coordinates for 2560x1440
+# ROI Coordinates for 2560x1440 Resolution
+# These are the 'Golden Standard' coordinates for 2560x1440p. 
+# The 'Smart Scaler' will adjust these if you ever change resolution.
 DEFAULT_ROIS = {
-    # Product modal - Purchase Goods screen
-    'product_name': {'x': 1000, 'y': 260, 'w': 560, 'h': 50},
-    'local_price': {'x': 1970, 'y': 375, 'w': 260, 'h': 45},
-    'average_cost': {'x': 505, 'y': 695, 'w': 235, 'h': 40},
-    'quantity_owned': {'x': 505, 'y': 650, 'w': 235, 'h': 40},
-    
-    # Friend's Price screen
-    'friend_price': {'x': 1570, 'y': 465, 'w': 195, 'h': 45},
-    'vs_local': {'x': 1800, 'y': 465, 'w': 130, 'h': 45},
-    'vs_owned': {'x': 1970, 'y': 465, 'w': 130, 'h': 45},
-    
-    # Region detection (top right currency icon area)
-    'region_indicator': {'x': 2130, 'y': 45, 'w': 100, 'h': 40},
+    'product_name':   {'x': 950,  'y': 285, 'w': 650, 'h': 75},
+    'local_price':    {'x': 1950, 'y': 365, 'w': 180, 'h': 55},
+    'average_cost':   {'x': 210,  'y': 635, 'w': 210, 'h': 50},
+    'quantity_owned': {'x': 210,  'y': 585, 'w': 210, 'h': 50},
+    'friend_price':   {'x': 1550, 'y': 440, 'w': 250, 'h': 65}
+}
+
+# Auto-detection settings
+AUTO_DETECT = {
+    'stability_frames': 3,
+    'price_change_threshold': 5
 }
 
 # Product names we expect to see (for validation)

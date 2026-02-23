@@ -1,9 +1,18 @@
 ﻿"""
 Endfield Market Tracker - Main Entry Point
 """
-
+from loguru import logger
+import time
 import sys
 import os
+
+# Configure logger to save to a file and show in console
+logger.add("debug_log.txt", rotation="500 MB")
+
+def diagnostic_ocr_step(image):
+    start = time.time()
+    # Logic here...
+    logger.info(f"Capture took: {time.time() - start:.4f}s")
 
 def check_dependencies():
     """Check that all required dependencies are installed"""
