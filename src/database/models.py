@@ -6,11 +6,14 @@ from datetime import datetime
 from typing import Optional
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker, relationship, scoped_session
 import os
 from appdirs import user_data_dir
 
 Base = declarative_base()
+
+# Global scoped session factory - thread-safe
+SessionFactory = None
 
 class Product(Base):
     """Represents a tradeable good in the game"""
@@ -103,12 +106,18 @@ def get_db_path():
 
 def init_database():
     """Initialize the database and create tables"""
+    global SessionFactory
     db_path = get_db_path()
     engine = create_engine(f'sqlite:///{db_path}')
     Base.metadata.create_all(engine)
+    
+    # Initialize thread-safe scoped session
+    SessionFactory = scoped_session(sessionmaker(bind=engine))
+    
     return engine
 
-def get_session(engine):
-    """Get a database session"""
-    Session = sessionmaker(bind=engine)
-    return Session()
+def get_session():
+    """Get a thread-safe database session"""
+    if SessionFactory is None:
+        raise RuntimeError("Database not initialized. Call init_database() first.")
+    return SessionFactory()

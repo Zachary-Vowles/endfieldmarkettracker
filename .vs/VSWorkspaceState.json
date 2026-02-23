@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\core",
+    "\\src\\database",
+    "\\src\\ui",
+    "\\src\\utils"
+  ],
+  "SelectedNode": "\\src\\core\\capture_worker.py",
+  "PreviewInSolutionExplorer": false
+}

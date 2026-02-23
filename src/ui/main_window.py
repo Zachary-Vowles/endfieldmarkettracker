@@ -19,6 +19,7 @@ from src.ui.product_card import ProductCard
 from src.database.manager import DatabaseManager
 from src.core.capture_worker import CaptureWorker
 from src.utils.constants import COLORS
+from src.ui.screenshot_log import ScreenshotLogWidget
 
 class MainWindow(QMainWindow):
     """Main application window"""
@@ -57,14 +58,20 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        # Main layout
-        main_layout = QVBoxLayout(central_widget)
+        # Main horizontal layout (content + screenshot log)
+        main_layout = QHBoxLayout(central_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
+        # Left side container (header + tabs)
+        left_container = QWidget()
+        left_layout = QVBoxLayout(left_container)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(0)
+        
         # Header
         header = self.create_header()
-        main_layout.addWidget(header)
+        left_layout.addWidget(header)
         
         # Tab widget
         self.tab_widget = QTabWidget()
@@ -78,13 +85,19 @@ class MainWindow(QMainWindow):
         self.history_tab = self.create_history_tab()
         self.tab_widget.addTab(self.history_tab, "Price History")
         
-        main_layout.addWidget(self.tab_widget, stretch=1)
+        left_layout.addWidget(self.tab_widget, stretch=1)
+        main_layout.addWidget(left_container, stretch=1)
+        
+        # Right side - Screenshot log
+        self.screenshot_log = ScreenshotLogWidget()
+        main_layout.addWidget(self.screenshot_log)
         
         # Status bar
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage("Ready - Click Start and browse your goods in-game")
-    
+
+
     def create_header(self):
         """Create the header section with controls"""
         header = QFrame()
@@ -122,19 +135,53 @@ class MainWindow(QMainWindow):
             padding-right: 20px;
         """)
         layout.addWidget(self.capture_counter)
+                
         
-        # Control buttons
+        # Monitor selector (for multi-monitor setups)
+        monitor_label = QLabel("Monitor:")
+        monitor_label.setStyleSheet(f"color: {COLORS['text_secondary']};")
+        layout.addWidget(monitor_label)
+        
+        self.monitor_selector = QComboBox()
+        self.monitor_selector.setMinimumWidth(100)
+        self.monitor_selector.setStyleSheet(f"""
+            QComboBox {{
+                background-color: {COLORS['bg_card']};
+                color: {COLORS['text_primary']};
+                border: 1px solid {COLORS['border_light']};
+                border-radius: 6px;
+                padding: 8px;
+            }}
+        """)
+        
+        # Populate with available monitors
+        from src.core.screen_capture import ScreenCapture
+        temp_capture = ScreenCapture.__new__(ScreenCapture)
+        temp_capture.sct = __import__('mss').mss()
+        temp_capture.monitors = temp_capture.sct.monitors
+        
+        for i in range(1, len(temp_capture.monitors)):
+            mon = temp_capture.monitors[i]
+            self.monitor_selector.addItem(f"{i}: {mon['width']}x{mon['height']}")
+        
+        temp_capture.sct.close()
+        layout.addWidget(self.monitor_selector)
+        
+        layout.addSpacing(20)  # Add some space before buttons
+
+
+         # Control buttons
         self.start_btn = QPushButton("Start")
         self.start_btn.setObjectName("startButton")
         self.start_btn.setFixedWidth(120)
-        self.start_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.start_btn.setCursor(Qt.CursorShape.PointingHandCursor)  # Set cursor in Python
         self.start_btn.clicked.connect(self.start_capture)
         layout.addWidget(self.start_btn)
         
         self.stop_btn = QPushButton("Stop")
         self.stop_btn.setObjectName("stopButton")
         self.stop_btn.setFixedWidth(120)
-        self.stop_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.stop_btn.setCursor(Qt.CursorShape.PointingHandCursor)  # Set cursor in Python
         self.stop_btn.clicked.connect(self.stop_capture)
         self.stop_btn.setEnabled(False)
         layout.addWidget(self.stop_btn)
@@ -315,30 +362,60 @@ class MainWindow(QMainWindow):
     
     def start_capture(self):
         """Start the capture session"""
+        # Get selected monitor
+        monitor_idx = self.monitor_selector.currentIndex() + 1
+        
+        # Visual feedback: Change button states
         self.start_btn.setEnabled(False)
+        self.start_btn.setText("Running...")
         self.stop_btn.setEnabled(True)
+        self.stop_btn.setText("Stop")
+        
+        # Change status indicator
+        self.status_bar.showMessage("[CAPTURING] Screen capture active")
+        success_color = COLORS['success']
+        self.status_bar.setStyleSheet(f"color: {success_color}; font-weight: bold;")
+        
+        # Clear previous log
+        self.screenshot_log.clear_log()
+        self.screenshot_log.update_status("Starting capture...")
         
         # Create and start worker thread
-        self.capture_worker = CaptureWorker(self.db_manager)
+        self.capture_worker = CaptureWorker(self.db_manager, monitor_idx=monitor_idx)
         self.capture_worker.status_update.connect(self.update_status)
         self.capture_worker.error_occurred.connect(self.show_error)
         self.capture_worker.product_captured.connect(self.on_product_captured)
         self.capture_worker.capture_count.connect(self.update_capture_count)
+        self.capture_worker.screenshot_captured.connect(self.screenshot_log.add_screenshot)
         self.capture_worker.start()
-    
+        
+        print("[OK] Capture started")
+
     def stop_capture(self):
         """Stop the capture session"""
         if self.capture_worker:
             self.capture_worker.stop()
             self.capture_worker = None
         
+        # Visual feedback: Restore button states
         self.start_btn.setEnabled(True)
+        self.start_btn.setText("Start")
         self.stop_btn.setEnabled(False)
+        self.stop_btn.setText("Stop")
+        
+        # Restore status bar
         self.status_bar.showMessage("Capture stopped - Data saved")
+        text_secondary_color = COLORS['text_secondary']
+        self.status_bar.setStyleSheet(f"color: {text_secondary_color};")
+        
+        self.screenshot_log.update_status("Capture stopped")
         
         # Refresh displays
         self.load_todays_data()
         self.load_price_history()
+        
+        print("[OK] Capture stopped")
+    
     
     def update_status(self, message):
         """Update status bar message"""
@@ -353,9 +430,13 @@ class MainWindow(QMainWindow):
         QMessageBox.critical(self, "Error", error_msg)
         self.stop_capture()
     
-    def on_product_captured(self, name, region, local_price, friend_price, 
-                           quantity_owned, average_cost):
+    def on_product_captured(self, name, region, local_price, friend_price,   quantity_owned, average_cost, screenshot=None):
+                         
         """Handle newly captured product"""
+        # Add screenshot to log if provided
+        if screenshot is not None:
+            self.screenshot_log.add_screenshot(screenshot, f"Detected: {name}")
+        
         # Update or create card
         if name in self.product_cards:
             card = self.product_cards[name]
@@ -363,6 +444,9 @@ class MainWindow(QMainWindow):
         else:
             # Create new card
             self.load_todays_data()
+        
+        # Update screenshot log status
+        self.screenshot_log.update_status(f"Captured: {name} @ {local_price}")
     
     def load_todays_data(self):
         """Load today's captured data"""

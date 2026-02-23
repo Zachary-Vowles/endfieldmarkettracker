@@ -23,14 +23,17 @@ class CaptureWorker(QThread):
     """
     
     # Signals
-    product_captured = pyqtSignal(str, str, int, int, int, int)  # name, region, local, friend, owned, avg_cost
+    product_captured = pyqtSignal(str, str, int, int, int, int, object)  # name, region, local, friend, owned, avg_cost
     status_update = pyqtSignal(str)
     error_occurred = pyqtSignal(str)
-    capture_count = pyqtSignal(int)  # Total products captured this session
+    capture_count = pyqtSignal(int) # Total products captured this session
+    screenshot_captured = pyqtSignal(object, str)  # New signal: image, status
     
-    def __init__(self, db_manager: DatabaseManager):
+    
+    def __init__(self, db_manager: DatabaseManager, monitor_idx: int = None):
         super().__init__()
         self.db_manager = db_manager
+        self.monitor_idx = monitor_idx  # Store monitor selection
         self.running = False
         self.session_id = None
         
@@ -59,22 +62,28 @@ class CaptureWorker(QThread):
         self.status_update.emit("Initializing capture system...")
         
         try:
-            # Initialize screen capture
+            # Initialize screen capture (auto-detect monitor)
             self.screen_capture = ScreenCapture()
             
-            # Verify resolution
+            # Verify resolution with tolerance
             width, height = self.screen_capture.get_screen_resolution()
-            if (width, height) != CAPTURE_SETTINGS['resolution']:
+            target_w, target_h = CAPTURE_SETTINGS['resolution']
+            
+            # Allow 10% tolerance for resolution matching
+            width_tolerance = abs(width - target_w) / target_w
+            height_tolerance = abs(height - target_h) / target_h
+            
+            if width_tolerance > 0.1 or height_tolerance > 0.1:
                 self.error_occurred.emit(
                     f"Screen resolution is {width}x{height}. "
-                    f"Expected {CAPTURE_SETTINGS['resolution'][0]}x{CAPTURE_SETTINGS['resolution'][1]}. "
-                    f"Please set your game to 2560x1440 fullscreen."
+                    f"Expected {target_w}x{target_h} (±10%). "
+                    f"Please set your game to 2560x1440 on the correct monitor."
                 )
                 return
             
             # Start database session
             self.session_id = self.db_manager.start_session()
-            self.status_update.emit("✓ Ready - Click through your goods in-game")
+            self.status_update.emit("[OK] Ready - Click through your goods in-game")
             
             # Main capture loop
             while self.running:
@@ -102,7 +111,7 @@ class CaptureWorker(QThread):
             product_key = f"{product_data.name}_{product_data.local_price}"
             
             if self._should_capture(product_key, product_data):
-                self._capture_product(product_data)
+                self._capture_product(product_data, screenshot)
         
         # Try to detect friend's price screen
         friend_data = self._detect_friend_screen(screenshot)
@@ -185,7 +194,7 @@ class CaptureWorker(QThread):
         
         return True
     
-    def _capture_product(self, product_data: ProductData):
+    def _capture_product(self, product_data: ProductData, screenshot: np.ndarray = None):
         """Capture and save product data"""
         self.current_product = product_data
         
@@ -198,7 +207,7 @@ class CaptureWorker(QThread):
             product_name=product_data.name,
             region=product_data.region,
             local_price=product_data.local_price,
-            friend_price=None,  # Will update later
+            friend_price=None,
             average_cost=product_data.average_cost,
             quantity_owned=product_data.quantity_owned,
             vs_local_percent=product_data.vs_local_percent,
@@ -212,16 +221,21 @@ class CaptureWorker(QThread):
         # Update UI
         self.capture_count_value += 1
         self.capture_count.emit(self.capture_count_value)
-        self.status_update.emit(f"✓ Captured: {product_data.name} @ {product_data.local_price:,}")
+        self.status_update.emit(f"[OK] Captured: {product_data.name} @ {product_data.local_price:,}")
         
-        # Emit signal for UI update
+        # Emit screenshot signal
+        if screenshot is not None:
+            self.screenshot_captured.emit(screenshot, f"Detected: {product_data.name}")
+        
+        # Emit signal for UI update (with screenshot)
         self.product_captured.emit(
             product_data.name,
             product_data.region,
             product_data.local_price,
-            0,  # Friend price not yet known
+            0,
             product_data.quantity_owned,
-            product_data.average_cost or 0
+            product_data.average_cost or 0,
+            screenshot
         )
     
     def _update_with_friend_price(self, friend_data: Dict):

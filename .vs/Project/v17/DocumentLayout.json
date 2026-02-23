@@ -1,0 +1,173 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\capture_worker.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\core\\capture_worker.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\database\\manager.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\database\\manager.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\main_window.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\ui\\main_window.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\screenshot_log.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\ui\\screenshot_log.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\styles.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\ui\\styles.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\main.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\main.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\product_card.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\ui\\product_card.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\data_extractor.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\core\\data_extractor.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\screen_capture.py||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:src\\core\\screen_capture.py||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "screenshot_log.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\screenshot_log.py",
+              "RelativeDocumentMoniker": "src\\ui\\screenshot_log.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\screenshot_log.py",
+              "RelativeToolTip": "src\\ui\\screenshot_log.py",
+              "ViewState": "AgIAANUAAAAAAAAAAAAQwBQBAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T10:25:31.202Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "manager.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\database\\manager.py",
+              "RelativeDocumentMoniker": "src\\database\\manager.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\database\\manager.py",
+              "RelativeToolTip": "src\\database\\manager.py",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAD4AAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T10:24:59.53Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "product_card.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\product_card.py",
+              "RelativeDocumentMoniker": "src\\ui\\product_card.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\product_card.py",
+              "RelativeToolTip": "src\\ui\\product_card.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T10:00:54.561Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "main.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\main.py",
+              "RelativeDocumentMoniker": "src\\main.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\main.py",
+              "RelativeToolTip": "src\\main.py",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAQwGkAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T10:00:23.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "main_window.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\main_window.py",
+              "RelativeDocumentMoniker": "src\\ui\\main_window.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\main_window.py",
+              "RelativeToolTip": "src\\ui\\main_window.py",
+              "ViewState": "AgIAAJwBAAAAAAAAAAAAALIBAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T09:51:55.194Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "styles.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\styles.py",
+              "RelativeDocumentMoniker": "src\\ui\\styles.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\ui\\styles.py",
+              "RelativeToolTip": "src\\ui\\styles.py",
+              "ViewState": "AgIAAJAAAAAAAAAAAAAQwM8AAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T09:50:59.786Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "capture_worker.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\capture_worker.py",
+              "RelativeDocumentMoniker": "src\\core\\capture_worker.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\capture_worker.py",
+              "RelativeToolTip": "src\\core\\capture_worker.py",
+              "ViewState": "AgIAAPwAAAAAAAAAAAAAABkBAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T09:50:19.267Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "data_extractor.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\data_extractor.py",
+              "RelativeDocumentMoniker": "src\\core\\data_extractor.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\data_extractor.py",
+              "RelativeToolTip": "src\\core\\data_extractor.py",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T09:50:18.788Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "screen_capture.py",
+              "DocumentMoniker": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\screen_capture.py",
+              "RelativeDocumentMoniker": "src\\core\\screen_capture.py",
+              "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\screen_capture.py",
+              "RelativeToolTip": "src\\core\\screen_capture.py",
+              "ViewState": "AgIAAFMAAAAAAAAAAAAQwJIAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
+              "WhenOpened": "2026-02-23T09:50:03.209Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

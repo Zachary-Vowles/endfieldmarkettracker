@@ -56,7 +56,6 @@ def get_main_stylesheet():
         padding: 12px 32px;
         font-weight: 600;
         font-size: 14px;
-        cursor: pointer;
     }}
     
     QPushButton#startButton {{

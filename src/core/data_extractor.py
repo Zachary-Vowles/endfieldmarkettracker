@@ -18,6 +18,7 @@ class ProductData:
     quantity_owned: int = 0
     vs_local_percent: Optional[float] = None
     vs_owned_percent: Optional[float] = None
+    reading_id: Optional[int] = None
 
 class DataExtractor:
     """Extracts structured data from OCR text"""
