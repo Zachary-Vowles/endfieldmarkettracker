@@ -60,3 +60,8 @@
 2026-02-24 00:37:42.173 | INFO     | src.core.capture_worker:_process_frame:110 - Scanning Game Window (2560x1440). Scaling: 1.00x
 2026-02-24 00:37:47.242 | INFO     | src.core.capture_worker:_process_frame:110 - Scanning Game Window (2560x1440). Scaling: 1.00x
 2026-02-24 00:37:52.324 | INFO     | src.core.capture_worker:_process_frame:110 - Scanning Game Window (2560x1440). Scaling: 1.00x
+2026-02-24 01:31:29.343 | INFO     | src.core.capture_worker:_process_frame:111 - Scanning Game Window (1616x1039). Scaling: 0.63x
+2026-02-24 01:31:34.363 | INFO     | src.core.capture_worker:_process_frame:111 - Scanning Game Window (2560x1440). Scaling: 1.00x
+2026-02-24 01:31:39.574 | INFO     | src.core.capture_worker:_process_frame:111 - Scanning Game Window (2560x1440). Scaling: 1.00x
+2026-02-24 01:31:44.605 | INFO     | src.core.capture_worker:_process_frame:111 - Scanning Game Window (2560x1440). Scaling: 1.00x
+2026-02-24 01:31:49.652 | INFO     | src.core.capture_worker:_process_frame:111 - Scanning Game Window (2560x1440). Scaling: 1.00x

@@ -169,6 +169,27 @@ class MainWindow(QMainWindow):
         
         layout.addSpacing(20)  # Add some space before buttons
 
+        # NEW: Calibrate button (add this section)
+        calibrate_btn = QPushButton("Calibrate")
+        calibrate_btn.setFixedWidth(100)
+        calibrate_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: {COLORS['bg_card']};
+                color: {COLORS['text_primary']};
+                border: 1px solid {COLORS['accent_teal']};
+                border-radius: 6px;
+                padding: 8px;
+            }}
+            QPushButton:hover {{
+                background-color: {COLORS['accent_teal']};
+                color: {COLORS['bg_primary']};
+            }}
+        """)
+        calibrate_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        calibrate_btn.clicked.connect(self.open_calibration)
+        layout.addWidget(calibrate_btn)
+        
+        layout.addSpacing(10)  # Space before Start/Stop buttons
 
          # Control buttons
         self.start_btn = QPushButton("Start")
@@ -187,7 +208,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.stop_btn)
         
         return header
-    
+   
+
+    def open_calibration(self):
+        """Open the calibration wizard"""
+        from src.ui.calibration_wizard import CalibrationWizard
+        wizard = CalibrationWizard(self)
+        wizard.exec()
     def create_trades_tab(self):
         """Create the Today's Trades tab"""
         widget = QWidget()

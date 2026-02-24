@@ -5,7 +5,7 @@ No calibration needed - works out of the box at 2560x1440
 
 import cv2
 import numpy as np
-from PyQt6.QtCore import QThread, pyqtSignal, QTimer, QMutex, QWaitCondition
+from PyQt6.QtCore import QThread, pyqtSignal, QTimer, QMutex, QWaitCondition, QMutexLocker
 from typing import Dict, Optional, List
 import time
 from loguru import logger
@@ -47,9 +47,13 @@ class CaptureWorker(QThread):
         self.last_prices = {}  
         self.last_log_time = 0
         self.capture_count_value = 0
+        self.last_error_log = 0  # Track when we last logged an error
         
         # Mutex for thread safety
         self.mutex = QMutex()
+        
+        # Debug window state
+        self.debug_window_created = False
         
     def run(self):
         """Main capture loop"""
@@ -88,30 +92,54 @@ class CaptureWorker(QThread):
         scale_x = w / 2560
         scale_y = h / 1440
         
-        # Create Debug View
-        debug_img = screenshot.copy()
-        scaled_rois = {}
-
+        # Create Debug View at reasonable size (1280x720 max)
+        # Use a copy so we don't modify original for OCR
+        debug_scale = min(1280 / w, 720 / h, 1.0)  # Scale down if needed, never up
+        if debug_scale < 1.0:
+            debug_width = int(w * debug_scale)
+            debug_height = int(h * debug_scale)
+            debug_img = cv2.resize(screenshot, (debug_width, debug_height))
+        else:
+            debug_img = screenshot.copy()
+            debug_width, debug_height = w, h
+        
+        # Scale ROIs for the debug view display
+        display_scale = debug_scale if debug_scale < 1.0 else 1.0
         for name, roi in DEFAULT_ROIS.items():
-            sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)
-            sw, sh = int(roi['w'] * scale_x), int(roi['h'] * scale_y)
-            scaled_rois[name] = {'x': sx, 'y': sy, 'w': sw, 'h': sh}
+            sx = int(roi['x'] * scale_x * display_scale)
+            sy = int(roi['y'] * scale_y * display_scale)
+            sw = int(roi['w'] * scale_x * display_scale)
+            sh = int(roi['h'] * scale_y * display_scale)
             
             # Draw green boxes for calibration
             cv2.rectangle(debug_img, (sx, sy), (sx + sw, sy + sh), (0, 255, 0), 2)
             cv2.putText(debug_img, name, (sx, sy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-        # Show the "Microscope" window
-        cv2.imshow("Calibration View (AI Vision)", cv2.resize(debug_img, (1280, 720)))
+        # Show the debug window - use fixed size to prevent recursion
+        window_name = "Calibration View (AI Vision)"
+        if not self.debug_window_created:
+            cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+            cv2.resizeWindow(window_name, 1280, 720)  # Fixed size, not auto
+            # Position away from center to avoid capturing itself
+            cv2.moveWindow(window_name, 50, 50)
+            self.debug_window_created = True
+            
+        cv2.imshow(window_name, debug_img)
         cv2.waitKey(1)
 
         # Verbose Performance Check every 5 seconds
         if time.time() - self.last_log_time > 5:
-            logger.info(f"Scanning Game Window ({w}x{h}). Scaling: {scale_x:.2f}x")
+            logger.info(f"Scanning Game Window ({w}x{h}). Scaling: {scale_x:.2f}x, Debug: {debug_scale:.2f}x")
             self.last_log_time = time.time()
 
-        # Execute OCR Detection
-        product_data = self._detect_product_screen(screenshot, scaled_rois)
+        # Execute OCR Detection (use full resolution for OCR)
+        full_scaled_rois = {}
+        for name, roi in DEFAULT_ROIS.items():
+            sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)
+            sw, sh = int(roi['w'] * scale_x), int(roi['h'] * scale_y)
+            full_scaled_rois[name] = {'x': sx, 'y': sy, 'w': sw, 'h': sh}
+        
+        product_data = self._detect_product_screen(screenshot, full_scaled_rois)
         
         if product_data:
             product_key = f"{product_data.name}_{product_data.local_price}"
@@ -129,23 +157,30 @@ class CaptureWorker(QThread):
             
             if product_data and self.data_extractor.is_valid_reading(product_data):
                 return product_data
-        except Exception:
-            pass 
+                
+        except Exception as e:
+            logger.warning(f"OCR detection failed: {type(e).__name__}: {e}")
+            # Only log full details every 10 seconds to avoid spam
+            if time.time() - self.last_error_log > 10:
+                logger.error(f"OCR debug info - Screenshot shape: {screenshot.shape if screenshot is not None else 'None'}")
+                self.last_error_log = time.time()
+                
         return None
 
     def _should_capture(self, product_key: str, product_data: ProductData) -> bool:
         """Avoid spamming the database with the same frame"""
-        current_time = time.time()
-        if product_key in self.last_prices:
-            last_time, last_price = self.last_prices[product_key]
-            if current_time - last_time < 2.0:
-                return False
-        return True
+        with QMutexLocker(self.mutex):
+            current_time = time.time()
+            if product_key in self.last_prices:
+                last_time, last_price = self.last_prices[product_key]
+                if current_time - last_time < 2.0:
+                    return False
+            self.last_prices[product_key] = (current_time, product_data.local_price)
+            return True
 
     def _capture_product(self, product_data: ProductData, screenshot: np.ndarray):
         """Save data and update UI signals"""
         product_key = f"{product_data.name}_{product_data.local_price}"
-        self.last_prices[product_key] = (time.time(), product_data.local_price)
         
         # Save to DB
         reading = self.db_manager.save_price_reading(
@@ -153,7 +188,6 @@ class CaptureWorker(QThread):
             region=product_data.region,
             local_price=product_data.local_price,
             session_id=self.session_id,
-            # Add other fields as per your DB model...
         )
         
         self.capture_count_value += 1
@@ -165,13 +199,45 @@ class CaptureWorker(QThread):
         )
 
     def stop(self):
+        """Stop the capture session safely"""
+        logger.info("Stop requested - signaling thread to end...")
         self.running = False
-        cv2.destroyAllWindows()
-        self.wait(2000)
+        
+        # Don't wait forever - give it 2 seconds then force close
+        if not self.wait(2000):  # Wait up to 2 seconds
+            logger.warning("Thread did not stop gracefully, terminating...")
+            self.terminate()
+            self.wait(1000)  # Wait a bit more after terminate
+        
+        # Cleanup happens in finally block of run(), but ensure it's called
+        self._cleanup()
+        logger.info("Stop complete")
 
     def _cleanup(self):
-        if self.session_id:
-            self.db_manager.end_session(self.session_id)
-        if self.screen_capture:
-            self.screen_capture.close()
-        cv2.destroyAllWindows()
+        """Ensure all resources are released properly"""
+        try:
+            # Close database session first
+            if self.session_id:
+                self.db_manager.end_session(self.session_id)
+                self.session_id = None
+                
+            # Close screen capture
+            if self.screen_capture:
+                self.screen_capture.close()
+                self.screen_capture = None
+                
+        finally:
+            # This ALWAYS runs, even if errors occurred above
+            if self.debug_window_created:
+                cv2.destroyWindow("Calibration View (AI Vision)")
+                cv2.waitKey(1)
+                self.debug_window_created = False
+            
+            # Clear GPU memory if available
+            try:
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                    logger.info("GPU memory cleared")
+            except:
+                pass  # If torch isn't available, ignore    

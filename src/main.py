@@ -1,7 +1,15 @@
 ﻿"""
 Endfield Market Tracker - Main Entry Point
 """
-from loguru import logger
+try:
+    from loguru import logger
+except Exception:
+    import logging
+    logger = logging.getLogger("emt")
+    logging.basicConfig(level=logging.INFO)
+    logger.error("loguru not available; falling back to stdlib logging. Install with: pip install loguru")
+    # optionally raise a clearer error or exit here
+
 import time
 import sys
 import os

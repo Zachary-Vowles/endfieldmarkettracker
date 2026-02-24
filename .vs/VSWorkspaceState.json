@@ -8,6 +8,6 @@
     "\\src\\utils",
     "\\tests"
   ],
-  "SelectedNode": "\\src\\utils\\constants.py",
+  "SelectedNode": "\\src\\ui\\calibration_wizard.py",
   "PreviewInSolutionExplorer": false
 }
