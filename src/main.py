@@ -13,7 +13,9 @@ except Exception:
 import time
 import sys
 import os
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
+logger.add("debug_log.txt", rotation="500 MB", level="DEBUG")
 # Configure logger to save to a file and show in console
 logger.add("debug_log.txt", rotation="500 MB")
 

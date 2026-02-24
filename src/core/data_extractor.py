@@ -6,6 +6,7 @@ import re
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass
 from src.utils.constants import KNOWN_PRODUCTS, Region
+from loguru import logger
 
 @dataclass
 class ProductData:
@@ -107,14 +108,44 @@ class DataExtractor:
     
     def process_ocr_results(self, ocr_results: Dict) -> Optional[ProductData]:
         """Process raw OCR results into structured product data"""
+        logger.info(f"Processing OCR results: {ocr_results}")  # DEBUG
         try:
             # Extract product name
-            name = self.extract_product_name(
-                ocr_results.get('product_name', '')
-            )
+            name = self.extract_product_name(ocr_results.get('product_name', ''))
+            name = self.extract_product_name(name_text)
+            logger.info(f"Extracted name: '{name}' from '{name_text}'")  # DEBUG
             
             if not name:
+                logger.warning("No product name found, rejecting")
                 return None
+
+            # Extract prices with debug
+            local_price_raw = ocr_results.get('local_price', '')
+            local_price = self.extract_price(local_price_raw)
+            logger.info(f"Local price: {local_price} from '{local_price_raw}'")  # DEBUG
+
+            friend_price_raw = ocr_results.get('friend_price', '')
+            friend_price = self.extract_price(friend_price_raw)
+            logger.info(f"Friend price: {friend_price} from '{friend_price_raw}'")  # DEBUG
+
+            # Validate
+            if not local_price:
+                logger.warning("No local price found, rejecting")
+                return None
+
+            product_data = ProductData(
+                name=name,
+                region=self.determine_region(name_text),
+                local_price=local_price,
+                friend_price=friend_price,
+                average_cost=self.extract_price(ocr_results.get('average_cost', '')),
+                quantity_owned=self.extract_quantity(ocr_results.get('quantity_owned', '')),
+                vs_local_percent=self.extract_percentage(ocr_results.get('vs_local', '')),
+                vs_owned_percent=self.extract_percentage(ocr_results.get('vs_owned', ''))
+            )
+
+            logger.info(f"Created ProductData: {product_data}")  # DEBUG
+            return product_data
             
             # Determine region
             region = self.determine_region(
@@ -164,8 +195,11 @@ class DataExtractor:
             )
             
         except Exception as e:
-            print(f"Error processing OCR results: {e}")
+            logger.error(f"Error processing OCR results: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return None
+            
     
     def calculate_profit_potential(self, data: ProductData) -> Optional[int]:
         """Calculate absolute profit potential"""

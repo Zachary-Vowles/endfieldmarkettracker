@@ -64,11 +64,11 @@ CAPTURE_SETTINGS = {
 # These are the 'Golden Standard' coordinates for 2560x1440p. 
 # The 'Smart Scaler' will adjust these if you ever change resolution.
 DEFAULT_ROIS = {
-    'product_name':   {'x': 950,  'y': 285, 'w': 650, 'h': 75},
-    'local_price':    {'x': 1950, 'y': 365, 'w': 180, 'h': 55},
-    'average_cost':   {'x': 210,  'y': 635, 'w': 210, 'h': 50},
+    'product_name':   {'x': 961,  'y': 366, 'w': 705, 'h': 54},
+    'local_price':    {'x': 1922, 'y': 1017, 'w': 121, 'h': 64},
+    'average_cost':   {'x': 688,  'y': 856, 'w': 150, 'h': 50},
     'quantity_owned': {'x': 210,  'y': 585, 'w': 210, 'h': 50},
-    'friend_price':   {'x': 1550, 'y': 440, 'w': 250, 'h': 65}
+    'friend_price':   {'x': 710, 'y': 804, 'w': 132, 'h': 44}
 }
 
 # Auto-detection settings

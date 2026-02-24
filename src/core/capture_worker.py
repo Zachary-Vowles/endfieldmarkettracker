@@ -37,8 +37,24 @@ class CaptureWorker(QThread):
         self.running = False
         self.session_id = None
         
+        # Load ROIs from config (calibrated values) or use defaults
+        from src.utils.config import get_config
+        config = get_config()
+        
+        # IMPORTANT: Use config ROIs if they exist and have data, else defaults
+        if config.rois and len(config.rois) > 0:
+            self.rois = config.rois
+            logger.info(f"Loaded {len(self.rois)} calibrated ROIs from config")
+        else:
+            self.rois = DEFAULT_ROIS
+            logger.info("Using default ROIs (no calibration found)")
+        
+        # Log what we're using
+        for name, roi in self.rois.items():
+            logger.info(f"  ROI {name}: {roi}")
+        
         # Initialize components
-        self.screen_capture = None
+        self.screen_capture = ScreenCapture()
         self.ocr_engine = OCREngine(use_gpu=True)
         self.data_extractor = DataExtractor()
         
@@ -47,14 +63,13 @@ class CaptureWorker(QThread):
         self.last_prices = {}  
         self.last_log_time = 0
         self.capture_count_value = 0
-        self.last_error_log = 0  # Track when we last logged an error
+        self.last_error_log = 0
         
         # Mutex for thread safety
         self.mutex = QMutex()
         
         # Debug window state
         self.debug_window_created = False
-        
     def run(self):
         """Main capture loop"""
         self.running = True
@@ -105,7 +120,7 @@ class CaptureWorker(QThread):
         
         # Scale ROIs for the debug view display
         display_scale = debug_scale if debug_scale < 1.0 else 1.0
-        for name, roi in DEFAULT_ROIS.items():
+        for name, roi in self.rois.items():
             sx = int(roi['x'] * scale_x * display_scale)
             sy = int(roi['y'] * scale_y * display_scale)
             sw = int(roi['w'] * scale_x * display_scale)
@@ -134,7 +149,7 @@ class CaptureWorker(QThread):
 
         # Execute OCR Detection (use full resolution for OCR)
         full_scaled_rois = {}
-        for name, roi in DEFAULT_ROIS.items():
+        for name, roi in self.rois.items():
             sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)
             sw, sh = int(roi['w'] * scale_x), int(roi['h'] * scale_y)
             full_scaled_rois[name] = {'x': sx, 'y': sy, 'w': sw, 'h': sh}

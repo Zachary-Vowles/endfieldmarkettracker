@@ -47,23 +47,26 @@ class CalibrationWizard(QDialog):
         
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setSpacing(16)
+        layout.setSpacing(20)
+        layout.setContentsMargins(20, 20, 20, 20)
         
         # Title
         title = QLabel("Calibration Setup")
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #00d4aa;")
+        title.setStyleSheet("font-size: 20px; font-weight: bold; color: #00d4aa;")
         layout.addWidget(title)
         
         # Progress bar
         self.progress = QProgressBar()
         self.progress.setMaximum(len(self.calibration_steps))
         self.progress.setValue(0)
+        self.progress.setTextVisible(True)
         self.progress.setStyleSheet("""
             QProgressBar {
                 border: 1px solid #3a3a3a;
                 border-radius: 6px;
                 text-align: center;
                 color: white;
+                height: 20px;
             }
             QProgressBar::chunk {
                 background-color: #00d4aa;
@@ -77,37 +80,42 @@ class CalibrationWizard(QDialog):
         self.step_label.setStyleSheet("color: #a0a0a0; font-size: 12px;")
         layout.addWidget(self.step_label)
         
-        # Instruction box
+        # Instruction box - FIXED: better padding and margins
         self.instruction_box = QFrame()
         self.instruction_box.setStyleSheet("""
             QFrame {
                 background-color: #252525;
                 border-radius: 8px;
-                padding: 16px;
+                border: 1px solid #3a3a3a;
             }
         """)
         instruction_layout = QVBoxLayout(self.instruction_box)
+        instruction_layout.setContentsMargins(16, 16, 16, 16)
+        instruction_layout.setSpacing(8)
         
         self.current_item = QLabel(self.calibration_steps[0][1])
         self.current_item.setStyleSheet("font-size: 16px; font-weight: bold; color: white;")
         instruction_layout.addWidget(self.current_item)
         
         self.instruction = QLabel(self.calibration_steps[0][2])
-        self.instruction.setStyleSheet("font-size: 13px; color: #a0a0a0; padding-top: 8px;")
+        self.instruction.setStyleSheet("font-size: 13px; color: #a0a0a0;")
         self.instruction.setWordWrap(True)
         instruction_layout.addWidget(self.instruction)
         
         layout.addWidget(self.instruction_box)
         
-        # Status label
+        # Status label - FIXED: minimum height and better wrapping
         self.status = QLabel("Click 'Capture Screenshot' to grab the game screen")
         self.status.setStyleSheet("color: #ffd700; font-size: 12px; padding: 8px;")
+        self.status.setWordWrap(True)
+        self.status.setMinimumHeight(40)
         layout.addWidget(self.status)
         
         # Buttons
         btn_layout = QHBoxLayout()
         
         self.capture_btn = QPushButton("📷 Capture Screenshot")
+        self.capture_btn.setMinimumHeight(40)
         self.capture_btn.setStyleSheet("""
             QPushButton {
                 background-color: #00d4aa;
@@ -122,7 +130,7 @@ class CalibrationWizard(QDialog):
                 background-color: #00a884;
             }
             QPushButton:disabled {
-                background-color: #3a3a3a;
+                background-color: #3a3a0a;
                 color: #666;
             }
         """)
@@ -130,6 +138,7 @@ class CalibrationWizard(QDialog):
         btn_layout.addWidget(self.capture_btn)
         
         self.skip_btn = QPushButton("Skip This")
+        self.skip_btn.setMinimumHeight(40)
         self.skip_btn.setStyleSheet("""
             QPushButton {
                 background-color: #3a3a3a;
@@ -147,8 +156,9 @@ class CalibrationWizard(QDialog):
         
         layout.addLayout(btn_layout)
         
-        # Save button (enabled at end)
+        # Save button
         self.save_btn = QPushButton("💾 Save Calibration")
+        self.save_btn.setMinimumHeight(45)
         self.save_btn.setStyleSheet("""
             QPushButton {
                 background-color: #4caf50;
@@ -171,19 +181,20 @@ class CalibrationWizard(QDialog):
         self.save_btn.setEnabled(False)
         layout.addWidget(self.save_btn)
         
-        # Summary label
-        self.summary = QLabel("")
-        self.summary.setStyleSheet("color: #4caf50; font-size: 11px;")
+        # Summary label - FIXED: scrollable area for many items
+        self.summary = QLabel("No regions captured yet")
+        self.summary.setStyleSheet("color: #4caf50; font-size: 11px; background-color: #1a1a1a; padding: 8px; border-radius: 4px;")
         self.summary.setWordWrap(True)
+        self.summary.setMinimumHeight(80)
         layout.addWidget(self.summary)
         
         layout.addStretch()
         
         # Help text
-        help_text = QLabel("Tip: Make sure Endfield is visible behind this window. The capture will grab the game directly, not your desktop.")
+        help_text = QLabel("Tip: The wizard will minimize itself when capturing so you can see the game clearly.")
         help_text.setStyleSheet("color: #666; font-size: 10px; font-style: italic;")
         help_text.setWordWrap(True)
-        layout.addWidget(help_text)
+        layout.addWidget(help_text)    
         
     def capture_screenshot(self):
         """Grab screenshot from Endfield window specifically"""
@@ -206,7 +217,12 @@ class CalibrationWizard(QDialog):
         
     def _capture_game_window(self):
         """Capture after we've minimized"""
-        screenshot = self.capture.capture_full_screen()
+        try:
+            screenshot = self.capture.capture_full_screen()
+        except Exception as e:
+            self.showNormal()
+            QMessageBox.critical(self, "Capture Failed", f"Error: {e}")
+            return
         
         # Restore our window
         self.showNormal()
@@ -219,11 +235,11 @@ class CalibrationWizard(QDialog):
                 "Make sure the game is running and not minimized.")
             return
             
-        # Store original for coordinate mapping
+        # Store original
         self.last_screenshot = screenshot
         h, w = screenshot.shape[:2]
         
-        # Resize for display if too large (OpenCV windows have max size around 1920x1080)
+        # Resize for display if too large
         display_scale = 1.0
         if w > 1600 or h > 900:
             display_scale = min(1600 / w, 900 / h)
@@ -233,10 +249,9 @@ class CalibrationWizard(QDialog):
             
         step_key, step_name, step_desc = self.calibration_steps[self.current_step]
         
-        # Create window with instructions in title
-        window_title = f"Draw box for: {step_name} | ENTER=confirm, C=cancel"
+        # Create window
+        window_title = f"Draw box for: {step_name} | ENTER=confirm, C=cancel, S=skip"
         
-        # Position OpenCV window away from our app
         cv2.namedWindow(window_title, cv2.WINDOW_NORMAL)
         cv2.moveWindow(window_title, 100, 100)
         cv2.resizeWindow(window_title, int(w * display_scale), int(h * display_scale))
@@ -245,12 +260,12 @@ class CalibrationWizard(QDialog):
         roi = cv2.selectROI(window_title, display_img, fromCenter=False, showCrosshair=True)
         cv2.destroyAllWindows()
         
-        # Check if user cancelled (roi will be all zeros)
+        # Check if user cancelled
         if roi[2] == 0 or roi[3] == 0:
-            self.status.setText("Selection cancelled. Try again.")
+            self.status.setText("Selection cancelled. Try again or click Skip.")
             return
             
-        # Scale back up if we resized for display
+        # Scale back up if we resized
         if display_scale < 1.0:
             roi = (
                 int(roi[0] / display_scale),
@@ -271,9 +286,27 @@ class CalibrationWizard(QDialog):
         self.status.setText(f"✓ Captured {step_name}: ({roi[0]}, {roi[1]}) size {roi[2]}x{roi[3]}")
         self.update_summary()
         
-        # Auto-advance to next step
-        self.next_step()    
-            
+        # AUTO-ADVANCE TO NEXT STEP (this was broken)
+        self.current_step += 1
+        self.progress.setValue(self.current_step)
+        
+        if self.current_step < len(self.calibration_steps):
+            # Update for next step
+            next_key, next_name, next_desc = self.calibration_steps[self.current_step]
+            self.step_label.setText(f"Step {self.current_step + 1} of {len(self.calibration_steps)}")
+            self.current_item.setText(next_name)
+            self.instruction.setText(next_desc)
+            self.capture_btn.setText(f"📷 Capture {next_name}")
+            self.status.setText(f"Ready for next: {next_name}")
+        else:
+            # All done
+            self.step_label.setText("Complete!")
+            self.current_item.setText("All regions captured!")
+            self.instruction.setText("Review the captured regions below, then click Save")
+            self.capture_btn.setEnabled(False)
+            self.skip_btn.setEnabled(False)
+            self.save_btn.setEnabled(True)
+            self.status.setText("✓ All steps complete! Click Save Calibration.")
     def skip_current(self):
         """Skip current calibration step"""
         self.current_step += 1

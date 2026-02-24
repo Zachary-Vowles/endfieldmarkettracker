@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 from typing import Dict, Optional, Tuple
 import easyocr
+from loguru import logger
 
 class OCREngine:
     """Handles OCR operations for price extraction"""
@@ -75,13 +76,23 @@ class OCREngine:
         
         for key, roi in rois.items():
             x, y, w, h = roi['x'], roi['y'], roi['w'], roi['h']
+            
+            # Bounds check - make sure ROI is within screenshot
+            if y+h > screenshot.shape[0] or x+w > screenshot.shape[1]:
+                logger.warning(f"ROI {key} out of bounds: ({x},{y},{w},{h}) vs screenshot {screenshot.shape}")
+                results[key] = None
+                continue
+            
             region = screenshot[y:y+h, x:x+w]
             
             if 'price' in key or 'cost' in key:
                 value = self.extract_number(region)
+                logger.debug(f"OCR {key}: extracted number = {value}")  # DEBUG
             else:
                 value = self.extract_text(region)
+                logger.debug(f"OCR {key}: extracted text = '{value}'")  # DEBUG
             
             results[key] = value
         
+        logger.info(f"OCR Results: {results}")  # DEBUG - always show this
         return results
