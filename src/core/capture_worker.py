@@ -107,47 +107,39 @@ class CaptureWorker(QThread):
         scale_x = w / 2560
         scale_y = h / 1440
         
-        # Create Debug View at reasonable size (1280x720 max)
-        # Use a copy so we don't modify original for OCR
-        debug_scale = min(1280 / w, 720 / h, 1.0)  # Scale down if needed, never up
-        if debug_scale < 1.0:
-            debug_width = int(w * debug_scale)
-            debug_height = int(h * debug_scale)
-            debug_img = cv2.resize(screenshot, (debug_width, debug_height))
-        else:
-            debug_img = screenshot.copy()
-            debug_width, debug_height = w, h
+        # --- DEBUG VIEW START ---
+        # Create a separate image for the debug window
+        debug_img = screenshot.copy()
         
         # Scale ROIs for the debug view display
-        display_scale = debug_scale if debug_scale < 1.0 else 1.0
         for name, roi in self.rois.items():
-            sx = int(roi['x'] * scale_x * display_scale)
-            sy = int(roi['y'] * scale_y * display_scale)
-            sw = int(roi['w'] * scale_x * display_scale)
-            sh = int(roi['h'] * scale_y * display_scale)
+            sx = int(roi['x'] * scale_x)
+            sy = int(roi['y'] * scale_y)
+            sw = int(roi['w'] * scale_x)
+            sh = int(roi['h'] * scale_y)
             
             # Draw green boxes for calibration
             cv2.rectangle(debug_img, (sx, sy), (sx + sw, sy + sh), (0, 255, 0), 2)
             cv2.putText(debug_img, name, (sx, sy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-        # Show the debug window - use fixed size to prevent recursion
+        # Show the debug window safely
         window_name = "Calibration View (AI Vision)"
         if not self.debug_window_created:
             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
-            cv2.resizeWindow(window_name, 1280, 720)  # Fixed size, not auto
-            # Position away from center to avoid capturing itself
+            cv2.resizeWindow(window_name, 1280, 720) 
             cv2.moveWindow(window_name, 50, 50)
             self.debug_window_created = True
             
         cv2.imshow(window_name, debug_img)
         cv2.waitKey(1)
+        # --- DEBUG VIEW END ---
 
         # Verbose Performance Check every 5 seconds
         if time.time() - self.last_log_time > 5:
-            logger.info(f"Scanning Game Window ({w}x{h}). Scaling: {scale_x:.2f}x, Debug: {debug_scale:.2f}x")
+            logger.info(f"Scanning Game Window ({w}x{h}). Scaling: {scale_x:.2f}x")
             self.last_log_time = time.time()
 
-        # Execute OCR Detection (use full resolution for OCR)
+        # Execute OCR Detection using full resolution
         full_scaled_rois = {}
         for name, roi in self.rois.items():
             sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)

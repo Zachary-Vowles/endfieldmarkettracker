@@ -50,13 +50,17 @@ class DataExtractor:
         cleaned = text.strip().replace("[pkg]", "").strip()
         return cleaned if cleaned else None
     
-    def extract_price(self, text: str) -> Optional[int]:
-        """Extract price value from text"""
+    def extract_price(self, text) -> Optional[int]:
+        """Extract price value from text or int safely"""
+        # If it's already a number from the OCR engine, just return it!
+        if isinstance(text, int):
+            return text
+            
         if not text:
             return None
-        
+            
         # Remove currency symbols and non-digit characters
-        cleaned = re.sub(r'[^\\d]', '', text)
+        cleaned = re.sub(r'[^\d]', '', str(text))
         
         try:
             return int(cleaned) if cleaned else None
@@ -105,102 +109,40 @@ class DataExtractor:
         
         # Default to Wuling if can't determine
         return Region.WULING.value
-    
+
+
     def process_ocr_results(self, ocr_results: Dict) -> Optional[ProductData]:
         """Process raw OCR results into structured product data"""
-        logger.info(f"Processing OCR results: {ocr_results}")  # DEBUG
+        logger.info(f"Processing OCR results: {ocr_results}")
         try:
-            # Extract product name
-            name = self.extract_product_name(ocr_results.get('product_name', ''))
+            # Safely grab strings
+            name_text = str(ocr_results.get('product_name', ''))
             name = self.extract_product_name(name_text)
-            logger.info(f"Extracted name: '{name}' from '{name_text}'")  # DEBUG
             
-            if not name:
-                logger.warning("No product name found, rejecting")
-                return None
-
-            # Extract prices with debug
-            local_price_raw = ocr_results.get('local_price', '')
-            local_price = self.extract_price(local_price_raw)
-            logger.info(f"Local price: {local_price} from '{local_price_raw}'")  # DEBUG
-
-            friend_price_raw = ocr_results.get('friend_price', '')
-            friend_price = self.extract_price(friend_price_raw)
-            logger.info(f"Friend price: {friend_price} from '{friend_price_raw}'")  # DEBUG
-
-            # Validate
-            if not local_price:
-                logger.warning("No local price found, rejecting")
+            local_price = self.extract_price(ocr_results.get('local_price'))
+            friend_price = self.extract_price(ocr_results.get('friend_price'))
+            
+            # Allow partial readings! If we have NEITHER a name nor a friend price, reject.
+            if not name and not friend_price:
                 return None
 
             product_data = ProductData(
-                name=name,
-                region=self.determine_region(name_text),
-                local_price=local_price,
+                name=name if name else "",
+                region=self.determine_region(name_text) if name else "",
+                local_price=local_price if local_price else 0,
                 friend_price=friend_price,
-                average_cost=self.extract_price(ocr_results.get('average_cost', '')),
-                quantity_owned=self.extract_quantity(ocr_results.get('quantity_owned', '')),
-                vs_local_percent=self.extract_percentage(ocr_results.get('vs_local', '')),
-                vs_owned_percent=self.extract_percentage(ocr_results.get('vs_owned', ''))
+                average_cost=self.extract_price(ocr_results.get('average_cost')),
+                quantity_owned=self.extract_quantity(str(ocr_results.get('quantity_owned', ''))),
+                vs_local_percent=self.extract_percentage(str(ocr_results.get('vs_local', ''))),
+                vs_owned_percent=self.extract_percentage(str(ocr_results.get('vs_owned', '')))
             )
 
-            logger.info(f"Created ProductData: {product_data}")  # DEBUG
+            logger.info(f"Created ProductData: {product_data}")
             return product_data
-            
-            # Determine region
-            region = self.determine_region(
-                ocr_results.get('product_name', '')
-            )
-            
-            # Extract prices
-            local_price = self.extract_price(
-                ocr_results.get('local_price', '')
-            )
-            
-            friend_price = self.extract_price(
-                ocr_results.get('friend_price', '')
-            )
-            
-            average_cost = self.extract_price(
-                ocr_results.get('average_cost', '')
-            )
-            
-            # Extract quantity
-            quantity = self.extract_quantity(
-                ocr_results.get('quantity_owned', '')
-            )
-            
-            # Extract percentages
-            vs_local = self.extract_percentage(
-                ocr_results.get('vs_local', '')
-            )
-            
-            vs_owned = self.extract_percentage(
-                ocr_results.get('vs_owned', '')
-            )
-            
-            # Validate minimum required data
-            if not local_price:
-                return None
-            
-            return ProductData(
-                name=name,
-                region=region,
-                local_price=local_price,
-                friend_price=friend_price,
-                average_cost=average_cost,
-                quantity_owned=quantity,
-                vs_local_percent=vs_local,
-                vs_owned_percent=vs_owned
-            )
             
         except Exception as e:
             logger.error(f"Error processing OCR results: {e}")
-            import traceback
-            logger.error(traceback.format_exc())
             return None
-            
-    
     def calculate_profit_potential(self, data: ProductData) -> Optional[int]:
         """Calculate absolute profit potential"""
         if data.friend_price and data.local_price:

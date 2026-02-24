@@ -8,6 +8,6 @@
     "\\src\\utils",
     "\\tests"
   ],
-  "SelectedNode": "\\src\\ui\\calibration_wizard.py",
+  "SelectedNode": "\\src\\core\\capture_worker.py",
   "PreviewInSolutionExplorer": false
 }
