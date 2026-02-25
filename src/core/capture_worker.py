@@ -36,7 +36,8 @@ class CaptureWorker(QThread):
         self.monitor_idx = monitor_idx
         self.running = False
         self.session_id = None
-        
+        self.pending_product = None
+
         # Load ROIs from config (calibrated values) or use defaults
         from src.utils.config import get_config
         config = get_config()
@@ -100,29 +101,22 @@ class CaptureWorker(QThread):
             self._cleanup()
     
     def _process_frame(self, screenshot: np.ndarray):
-        """Handles visual debugging and coordinate scaling."""
+        """Handles visual debugging and two-screen memory state."""
         h, w = screenshot.shape[:2]
         
-        # SMART SCALING: Map 1440p (target) to actual window size
         scale_x = w / 2560
         scale_y = h / 1440
         
         # --- DEBUG VIEW START ---
-        # Create a separate image for the debug window
         debug_img = screenshot.copy()
-        
-        # Scale ROIs for the debug view display
         for name, roi in self.rois.items():
             sx = int(roi['x'] * scale_x)
             sy = int(roi['y'] * scale_y)
             sw = int(roi['w'] * scale_x)
             sh = int(roi['h'] * scale_y)
-            
-            # Draw green boxes for calibration
             cv2.rectangle(debug_img, (sx, sy), (sx + sw, sy + sh), (0, 255, 0), 2)
             cv2.putText(debug_img, name, (sx, sy - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
 
-        # Show the debug window safely
         window_name = "Calibration View (AI Vision)"
         if not self.debug_window_created:
             cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
@@ -134,12 +128,7 @@ class CaptureWorker(QThread):
         cv2.waitKey(1)
         # --- DEBUG VIEW END ---
 
-        # Verbose Performance Check every 5 seconds
-        if time.time() - self.last_log_time > 5:
-            logger.info(f"Scanning Game Window ({w}x{h}). Scaling: {scale_x:.2f}x")
-            self.last_log_time = time.time()
-
-        # Execute OCR Detection using full resolution
+        # Execute OCR Detection
         full_scaled_rois = {}
         for name, roi in self.rois.items():
             sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)
@@ -149,9 +138,23 @@ class CaptureWorker(QThread):
         product_data = self._detect_product_screen(screenshot, full_scaled_rois)
         
         if product_data:
-            product_key = f"{product_data.name}_{product_data.local_price}"
-            if self._should_capture(product_key, product_data):
-                self._capture_product(product_data, screenshot)
+            # STATE 1: We are looking at the main Product Screen
+            if product_data.name and product_data.local_price > 0:
+                self.pending_product = product_data
+                self.status_update.emit(f"Scanned {product_data.name}. Click Friend's Price...")
+                
+            # STATE 2: We are looking at the Friend Price Screen AND have memory
+            elif product_data.friend_price and self.pending_product:
+                # Stitch the new friend price onto our memorized product
+                self.pending_product.friend_price = product_data.friend_price
+                
+                # Verify and Save to Database!
+                product_key = f"{self.pending_product.name}_{self.pending_product.local_price}"
+                if self._should_capture(product_key, self.pending_product):
+                    self._capture_product(self.pending_product, screenshot)
+                    
+                    # Wipe memory so we don't save duplicates
+                    self.pending_product = None
 
     def _detect_product_screen(self, screenshot: np.ndarray, scaled_rois: dict) -> Optional[ProductData]:
         """OCR detection using scaled coordinates"""

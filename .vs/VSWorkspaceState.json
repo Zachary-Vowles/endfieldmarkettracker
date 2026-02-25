@@ -8,6 +8,6 @@
     "\\src\\utils",
     "\\tests"
   ],
-  "SelectedNode": "\\src\\core\\capture_worker.py",
+  "SelectedNode": "\\src\\core\\ocr_engine.py",
   "PreviewInSolutionExplorer": false
 }

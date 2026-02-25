@@ -204,8 +204,7 @@
               "RelativeToolTip": "src\\main.py",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:48:19.777Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:48:19.777Z"
             },
             {
               "$type": "Document",
@@ -229,8 +228,7 @@
               "RelativeToolTip": "src\\utils\\constants.py",
               "ViewState": "AgIAACEAAAAAAAAAAAAAAEQAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:48:19.237Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:48:19.237Z"
             },
             {
               "$type": "Document",
@@ -242,8 +240,7 @@
               "RelativeToolTip": "src\\utils\\config.py",
               "ViewState": "AgIAAC0AAAAAAAAAAAAAAEwAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:48:18.975Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:48:18.975Z"
             },
             {
               "$type": "Document",
@@ -313,8 +310,7 @@
               "RelativeToolTip": "src\\ui\\calibration_wizard.py",
               "ViewState": "AgIAAPgAAAAAAAAAAAAhwOAAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:48:17.829Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:48:17.829Z"
             },
             {
               "$type": "Document",
@@ -373,8 +369,7 @@
               "RelativeToolTip": "src\\core\\data_extractor.py",
               "ViewState": "AgIAAGwAAAAAAAAAAAAAAJAAAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:47:58.056Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:47:58.056Z"
             },
             {
               "$type": "Document",
@@ -409,8 +404,7 @@
               "RelativeToolTip": "src\\core\\ocr_engine.py",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
-              "WhenOpened": "2026-02-24T00:24:39.018Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-24T00:24:39.018Z"
             },
             {
               "$type": "Document",
@@ -420,7 +414,7 @@
               "RelativeDocumentMoniker": "src\\core\\capture_worker.py",
               "ToolTip": "C:\\Users\\Deathbloodma\\Desktop\\endfield-market-tracker\\Project\\src\\core\\capture_worker.py",
               "RelativeToolTip": "src\\core\\capture_worker.py",
-              "ViewState": "AgIAAHYAAAAAAAAAAAAmwI0AAAA1AAAAAAAAAA==",
+              "ViewState": "AgIAAGsAAAAAAAAAAAAuwJwAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002457|",
               "WhenOpened": "2026-02-24T00:24:27.163Z",
               "EditorCaption": ""
