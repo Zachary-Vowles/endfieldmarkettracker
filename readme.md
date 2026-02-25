@@ -6,7 +6,7 @@ A companion desktop application for Endfield that helps you make optimal trading
 ![Platform](https://img.shields.io/badge/platform-Windows-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)
 
-## What It Does
+## What It Does (or I am hoping it will eventually do - currently WIP)
 
 Endfield Market Tracker watches your game screen, reads market prices using computer vision, and tells you the most profitable trades to make each day.
 
@@ -44,8 +44,8 @@ The app uses screen capture and OCR (Optical Character Recognition) to read pric
 ### Run from Source
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/endfield-market-tracker.git
-cd endfield-market-tracker
+git clone https://github.com/Zachary-Vowles/endfieldmarkettracker
+cd endfieldmarkettracker
 
 # Create virtual environment
 python -m venv venv

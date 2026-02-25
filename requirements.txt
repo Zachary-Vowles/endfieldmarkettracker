@@ -25,6 +25,7 @@ python-dateutil>=2.8.0
 pydantic>=2.0.0  # Data validation
 loguru>=0.7.0    # Better logging
 appdirs>=1.4.4   # Cross-platform app directories
+psutil>=5.9.0    # Process monitoring for window capture
 
 # Testing
 pytest>=7.4.0

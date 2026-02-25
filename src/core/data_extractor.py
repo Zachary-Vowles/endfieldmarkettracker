@@ -3,9 +3,9 @@ Data extractor - processes OCR results into structured data
 """
 
 import re
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from dataclasses import dataclass
-from src.utils.constants import KNOWN_PRODUCTS, Region
+from src.utils.constants import KNOWN_PRODUCTS, Region, PRODUCT_REGIONS
 from loguru import logger
 
 @dataclass
@@ -44,15 +44,14 @@ class DataExtractor:
         # Check against known products
         for product, pattern in self.product_patterns.items():
             if pattern.search(text_lower):
-                return product # Return the exact, properly formatted name
+                return product
         
-        # If no match, return the text cleaned up - can replace with return None to be stricter, maybe will cause an issue - check known product list.
-        cleaned = text.strip().replace("[pkg]", "").strip()
-        return cleaned if cleaned else None
+        # If no match, clean up the text and return it (might be a new product)
+        cleaned = str(text).strip().replace("[pkg]", "").strip()
+        return cleaned if len(cleaned) > 3 else None
     
     def extract_price(self, text) -> Optional[int]:
         """Extract price value from text or int safely"""
-        # If it's already a number from the OCR engine, just return it!
         if isinstance(text, int):
             return text
             
@@ -73,7 +72,7 @@ class DataExtractor:
             return None
         
         # Match patterns like +40.5%, -15.2%, 80.9%
-        match = re.search(r'([+-]?\\d+\\.?\\d*)%', text)
+        match = re.search(r'([+-]?\d+\.?\d*)%', str(text))
         if match:
             try:
                 return float(match.group(1))
@@ -87,24 +86,32 @@ class DataExtractor:
             return 0
         
         # Look for "Owned: X" or just a number
-        match = re.search(r'Owned[\s]*(\d+)', str(text), re.IGNORECASE) ##old version was: match = re.search(r'Owned[:\\s]*(\\d+)', text, re.IGNORECASE)
+        match = re.search(r'Owned[\s]*(\d+)', str(text), re.IGNORECASE)
         if match:
             return int(match.group(1))
         
         # Try to find any number
-        numbers = re.findall(r'\d+', str(text)) ##old version was: numbers = re.findall(r'\\d+', text)
+        numbers = re.findall(r'\d+', str(text))
         if numbers:
             return int(numbers[0])
         
         return 0
     
     def determine_region(self, name: str) -> str:
-        """Determine region strictly from the verified product name"""
-        from src.utils.constants import PRODUCT_REGIONS
+        """Determine region from text (Wuling or Valley)"""
+        # Exact match from dictionary
         if name in PRODUCT_REGIONS:
             return PRODUCT_REGIONS[name].value
+        
+        # Fallback text search
+        text_lower = name.lower()
+        if 'wuling' in text_lower or 'hz' in text_lower:
+            return Region.WULING.value
+        elif 'valley' in text_lower:
+            return Region.VALLEY.value
+        
+        # Default to Wuling if can't determine
         return Region.WULING.value
-
 
     def process_ocr_results(self, ocr_results: Dict) -> Optional[ProductData]:
         """Process raw OCR results into structured product data"""
@@ -117,8 +124,12 @@ class DataExtractor:
             local_price = self.extract_price(ocr_results.get('local_price'))
             friend_price = self.extract_price(ocr_results.get('friend_price'))
             
+            # --- FILTER: Clamp Friend Price ---
+            if friend_price and friend_price > 9000:
+                logger.warning(f"Friend price {friend_price} > 9000, ignoring as noise.")
+                friend_price = None
+
             # To stitch screens, we need AT LEAST a product name OR a friend price. 
-            # If we have neither, the screen is useless to us right now.
             if not name and not friend_price:
                 return None
 
@@ -128,7 +139,7 @@ class DataExtractor:
                 local_price=local_price if local_price else 0,
                 friend_price=friend_price,
                 average_cost=self.extract_price(ocr_results.get('average_cost')),
-                quantity_owned=self.extract_quantity(ocr_results.get('quantity_owned', '')),
+                quantity_owned=self.extract_quantity(str(ocr_results.get('quantity_owned', ''))),
                 vs_local_percent=self.extract_percentage(str(ocr_results.get('vs_local', ''))),
                 vs_owned_percent=self.extract_percentage(str(ocr_results.get('vs_owned', '')))
             )
@@ -139,6 +150,7 @@ class DataExtractor:
         except Exception as e:
             logger.error(f"Error processing OCR results: {e}")
             return None
+
     def calculate_profit_potential(self, data: ProductData) -> Optional[int]:
         """Calculate absolute profit potential"""
         if data.friend_price and data.local_price:
@@ -147,14 +159,9 @@ class DataExtractor:
     
     def is_valid_reading(self, data: ProductData) -> bool:
         """Validate that the reading makes sense"""
-        # Basic sanity checks
-        if not data.name or len(data.name) < 3:
-            return False
-        
-        if data.local_price and (data.local_price < 0 or data.local_price > 1000000):
-            return False
-        
-        if data.friend_price and (data.friend_price < 0 or data.friend_price > 1000000):
-            return False
-        
-        return True
+        # We allow partials now, so we return True if we have useful data
+        if data.name and len(data.name) > 2:
+            return True
+        if data.friend_price and data.friend_price > 0:
+            return True
+        return False

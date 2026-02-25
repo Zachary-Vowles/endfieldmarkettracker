@@ -14,7 +14,7 @@ CURRENCIES = {
     Region.VALLEY: "◆"  # Yellow diamond-like symbol used in Valley
 }
 
-# UI Colors matching Endfield aesthetic (Updated from Mockup)
+# UI Colors matching Endfield aesthetic
 COLORS = {
     # Backgrounds
     'bg_app': '#1a1a1a',           # Deep dark outer background
@@ -76,29 +76,47 @@ AUTO_DETECT = {
     'price_change_threshold': 50,  # Minimum price change to trigger new reading
 }
 
-# Product names we expect to see (for validation)
-KNOWN_PRODUCTS = [
-    "Wuling Frozen Pears",
-    "Eureka Anti-smog Tincture", 
-    "Wuxia Movies",
-    "Nymphsprout",
-    "Witchcraft Mining Drill",
-    "Military Canned Food",
-    "Valley Specialty",
-    "Industrial Precision Component",
-    "Gallic Standard Cookware",
-    "Victoria Crown",
-    "Lungmen Freshwater",
-    "Sami Herbal Mix",
-    "Iberian Dried Fish",
-    "Kazimierz Knight Figurine",
-    "Laterano Sacramental Candle",
-    "Higashi Tea Set",
-    "Sargon Spice",
-    "Ursus Timber",
-    "Yanese Silks",
-    "Leithanian Instruments",
-]
+# Product dictionary mapping names to their specific regions
+PRODUCT_REGIONS = {
+    # Wuling Region
+    "Wuling Frozen Pears": Region.WULING,
+    "Wuxia Movies": Region.WULING,
+    "Nymphsprout": Region.WULING,
+    "Eureka Anti-smog Tincture": Region.WULING,
+    "Wuling Frozen Pears [pkg]": Region.WULING,
+    "Wuxia Movies [pkg]": Region.WULING,
+    "Nymphsprout [pkg]": Region.WULING,
+    "Eureka Anti-smog Tincture [pkg]": Region.WULING,
+    
+    # Valley IV Region
+    "Ankhorilling Kitchenware": Region.VALLEY,
+    "Musbeast Scrimshaw Dangles": Region.VALLEY,
+    "Witchcraft Mining Drill": Region.VALLEY,
+    "Aggeloi War Tins": Region.VALLEY,
+    "Valley Hydroculture Fillets": Region.VALLEY,
+    "Unity Syrup": Region.VALLEY,
+    "Originium Saplings": Region.VALLEY,
+    "Seš'qamam Knucklebones": Region.VALLEY,
+    "Astarron Crystals": Region.VALLEY,
+    "Vigilant Pickaxes": Region.VALLEY,
+    "Hard Noggin Helmets": Region.VALLEY,
+    "Scrap Toy Blocks": Region.VALLEY,
+    "Ankhorilling Kitchenware [pkg]": Region.VALLEY,
+    "Musbeast Scrimshaw Dangles [pkg]": Region.VALLEY,
+    "Witchcraft Mining Drill [pkg]": Region.VALLEY,
+    "Aggeloi War Tins [pkg]": Region.VALLEY,
+    "Valley Hydroculture Fillets [pkg]": Region.VALLEY,
+    "Unity Syrup [pkg]": Region.VALLEY,
+    "Originium Saplings [pkg]": Region.VALLEY,
+    "Seš'qamam Knucklebones [pkg]": Region.VALLEY,
+    "Astarron Crystals [pkg]": Region.VALLEY,
+    "Vigilant Pickaxes [pkg]": Region.VALLEY,
+    "Hard Noggin Helmets [pkg]": Region.VALLEY,
+    "Scrap Toy Blocks [pkg]": Region.VALLEY,
+}
+
+# Keep this for backward compatibility with regex compiler
+KNOWN_PRODUCTS = list(PRODUCT_REGIONS.keys())
 
 # Database
 DB_NAME = "prices.db"
