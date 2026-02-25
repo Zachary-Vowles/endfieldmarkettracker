@@ -1,13 +1,13 @@
 {
   "ExpandedNodes": [
     "",
+    "\\assets",
     "\\src",
     "\\src\\core",
     "\\src\\database",
     "\\src\\ui",
-    "\\src\\utils",
-    "\\tests"
+    "\\src\\utils"
   ],
-  "SelectedNode": "\\src\\core\\data_extractor.py",
+  "SelectedNode": "\\src\\core\\screen_capture.py",
   "PreviewInSolutionExplorer": false
 }

@@ -61,13 +61,15 @@ CAPTURE_SETTINGS = {
 
 # UI Regions for OCR - CALIBRATED FOR 2560x1440 FULLSCREEN
 DEFAULT_ROIS = {
-    'product_name':   {'x': 961,  'y': 366, 'w': 705, 'h': 54},
-    'local_price':    {'x': 1922, 'y': 1017, 'w': 121, 'h': 64},
-    'average_cost':   {'x': 688,  'y': 856, 'w': 150, 'h': 50},
-    'quantity_owned': {'x': 210,  'y': 585, 'w': 210, 'h': 50},
-    'friend_price':   {'x': 710, 'y': 804, 'w': 132, 'h': 44}
+    'product_name': {'x': 958, 'y': 369, 'w': 739, 'h': 52},
+    'local_price': {'x': 1923, 'y': 1016, 'w': 182, 'h': 70},
+    'friend_price': {'x': 1531, 'y': 584, 'w': 164, 'h': 57},
+    'average_cost': {'x': 712, 'y': 854, 'w': 113, 'h': 48},
+    'quantity_owned': {'x': 734, 'y': 795, 'w': 86, 'h': 51},
 }
 
+#{'x': 710, 'y': 804, 'w': 132, 'h': 44} where quantity owned should be.
+#
 # Auto-detection settings
 AUTO_DETECT = {
     'enabled': True,

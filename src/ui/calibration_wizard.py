@@ -1,5 +1,4 @@
-﻿
-import cv2
+﻿import cv2
 import numpy as np
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QPushButton, 
                              QLabel, QMessageBox, QProgressBar, QFrame) 
@@ -7,6 +6,7 @@ from PyQt6.QtCore import Qt, QTimer
 from src.utils.constants import DEFAULT_ROIS
 from src.core.screen_capture import ScreenCapture
 import time
+import os
 
 class CalibrationWizard(QDialog):
     """Simple wizard to calibrate OCR detection regions for Endfield"""
@@ -80,7 +80,7 @@ class CalibrationWizard(QDialog):
         self.step_label.setStyleSheet("color: #a0a0a0; font-size: 12px;")
         layout.addWidget(self.step_label)
         
-        # Instruction box - FIXED: better padding and margins
+        # Instruction box
         self.instruction_box = QFrame()
         self.instruction_box.setStyleSheet("""
             QFrame {
@@ -104,7 +104,7 @@ class CalibrationWizard(QDialog):
         
         layout.addWidget(self.instruction_box)
         
-        # Status label - FIXED: minimum height and better wrapping
+        # Status label
         self.status = QLabel("Click 'Capture Screenshot' to grab the game screen")
         self.status.setStyleSheet("color: #ffd700; font-size: 12px; padding: 8px;")
         self.status.setWordWrap(True)
@@ -126,13 +126,8 @@ class CalibrationWizard(QDialog):
                 font-weight: bold;
                 font-size: 13px;
             }
-            QPushButton:hover {
-                background-color: #00a884;
-            }
-            QPushButton:disabled {
-                background-color: #3a3a0a;
-                color: #666;
-            }
+            QPushButton:hover { background-color: #00a884; }
+            QPushButton:disabled { background-color: #3a3a0a; color: #666; }
         """)
         self.capture_btn.clicked.connect(self.capture_screenshot)
         btn_layout.addWidget(self.capture_btn)
@@ -147,9 +142,7 @@ class CalibrationWizard(QDialog):
                 border-radius: 6px;
                 padding: 12px 24px;
             }
-            QPushButton:hover {
-                background-color: #555;
-            }
+            QPushButton:hover { background-color: #555; }
         """)
         self.skip_btn.clicked.connect(self.skip_current)
         btn_layout.addWidget(self.skip_btn)
@@ -169,19 +162,14 @@ class CalibrationWizard(QDialog):
                 font-weight: bold;
                 font-size: 14px;
             }
-            QPushButton:hover {
-                background-color: #388e3c;
-            }
-            QPushButton:disabled {
-                background-color: #3a3a3a;
-                color: #666;
-            }
+            QPushButton:hover { background-color: #388e3c; }
+            QPushButton:disabled { background-color: #3a3a3a; color: #666; }
         """)
         self.save_btn.clicked.connect(self.save_calibration)
         self.save_btn.setEnabled(False)
         layout.addWidget(self.save_btn)
         
-        # Summary label - FIXED: scrollable area for many items
+        # Summary label
         self.summary = QLabel("No regions captured yet")
         self.summary.setStyleSheet("color: #4caf50; font-size: 11px; background-color: #1a1a1a; padding: 8px; border-radius: 4px;")
         self.summary.setWordWrap(True)
@@ -197,26 +185,17 @@ class CalibrationWizard(QDialog):
         layout.addWidget(help_text)    
         
     def capture_screenshot(self):
-        """Grab screenshot from Endfield window specifically"""
         self.status.setText("Capturing... make sure game is visible")
         self.status.repaint()
-        
-        # Small delay so user can see the message
         QTimer.singleShot(500, self._do_capture)
         
     def _do_capture(self):
-        """Actual capture - specifically targets Endfield window"""
         self.status.setText("Capturing Endfield window...")
         self.status.repaint()
-        
-        # Minimize ourselves so we don't get in the way
         self.showMinimized()
-        
-        # Give time for minimize animation and user to see game
         QTimer.singleShot(800, self._capture_game_window)
         
     def _capture_game_window(self):
-        """Capture after we've minimized"""
         try:
             screenshot = self.capture.capture_full_screen()
         except Exception as e:
@@ -224,7 +203,6 @@ class CalibrationWizard(QDialog):
             QMessageBox.critical(self, "Capture Failed", f"Error: {e}")
             return
         
-        # Restore our window
         self.showNormal()
         self.raise_()
         self.activateWindow()
@@ -235,11 +213,9 @@ class CalibrationWizard(QDialog):
                 "Make sure the game is running and not minimized.")
             return
             
-        # Store original
         self.last_screenshot = screenshot
         h, w = screenshot.shape[:2]
         
-        # Resize for display if too large
         display_scale = 1.0
         if w > 1600 or h > 900:
             display_scale = min(1600 / w, 900 / h)
@@ -249,23 +225,18 @@ class CalibrationWizard(QDialog):
             
         step_key, step_name, step_desc = self.calibration_steps[self.current_step]
         
-        # Create window
         window_title = f"Draw box for: {step_name} | ENTER=confirm, C=cancel, S=skip"
-        
         cv2.namedWindow(window_title, cv2.WINDOW_NORMAL)
         cv2.moveWindow(window_title, 100, 100)
         cv2.resizeWindow(window_title, int(w * display_scale), int(h * display_scale))
         
-        # OpenCV ROI selector
         roi = cv2.selectROI(window_title, display_img, fromCenter=False, showCrosshair=True)
         cv2.destroyAllWindows()
         
-        # Check if user cancelled
         if roi[2] == 0 or roi[3] == 0:
             self.status.setText("Selection cancelled. Try again or click Skip.")
             return
             
-        # Scale back up if we resized
         if display_scale < 1.0:
             roi = (
                 int(roi[0] / display_scale),
@@ -274,24 +245,17 @@ class CalibrationWizard(QDialog):
                 int(roi[3] / display_scale)
             )
         
-        # Store the ROI
         self.rois[step_key] = {
-            'x': roi[0], 
-            'y': roi[1], 
-            'w': roi[2], 
-            'h': roi[3]
+            'x': roi[0], 'y': roi[1], 'w': roi[2], 'h': roi[3]
         }
         
-        # Update UI
         self.status.setText(f"✓ Captured {step_name}: ({roi[0]}, {roi[1]}) size {roi[2]}x{roi[3]}")
         self.update_summary()
         
-        # AUTO-ADVANCE TO NEXT STEP (this was broken)
         self.current_step += 1
         self.progress.setValue(self.current_step)
         
         if self.current_step < len(self.calibration_steps):
-            # Update for next step
             next_key, next_name, next_desc = self.calibration_steps[self.current_step]
             self.step_label.setText(f"Step {self.current_step + 1} of {len(self.calibration_steps)}")
             self.current_item.setText(next_name)
@@ -299,7 +263,6 @@ class CalibrationWizard(QDialog):
             self.capture_btn.setText(f"📷 Capture {next_name}")
             self.status.setText(f"Ready for next: {next_name}")
         else:
-            # All done
             self.step_label.setText("Complete!")
             self.current_item.setText("All regions captured!")
             self.instruction.setText("Review the captured regions below, then click Save")
@@ -307,8 +270,8 @@ class CalibrationWizard(QDialog):
             self.skip_btn.setEnabled(False)
             self.save_btn.setEnabled(True)
             self.status.setText("✓ All steps complete! Click Save Calibration.")
+
     def skip_current(self):
-        """Skip current calibration step"""
         self.current_step += 1
         self.progress.setValue(self.current_step)
         
@@ -326,42 +289,51 @@ class CalibrationWizard(QDialog):
                 self.save_btn.setEnabled(True)
                 
     def update_summary(self):
-        """Show what we've captured so far"""
         lines = ["Captured regions:"]
         for key, roi in self.rois.items():
-            # Find display name
             name = key.replace("_", " ").title()
             lines.append(f"  • {name}: ({roi['x']}, {roi['y']}) {roi['w']}x{roi['h']}")
         self.summary.setText("\n".join(lines))
         
     def save_calibration(self):
-        """Save to config file and update constants"""
         if not self.rois:
             QMessageBox.warning(self, "Nothing to save", "No regions were captured.")
             return
             
         try:
+            # 1. Save to the standard config file (so the app uses it immediately)
             from src.utils.config import get_config, save_config
             config = get_config()
-            
-            # Merge with existing ROIs (update only what we captured)
             for key, value in self.rois.items():
                 config.rois[key] = value
-                
             save_config()
             
-            # Also update the in-memory constants for immediate use
+            # 2. Update the in-memory constants
             import src.utils.constants as constants
             for key, value in self.rois.items():
                 constants.DEFAULT_ROIS[key] = value
+                
+            # 3. OUTPUT TO TEXT FILE for easy copying
+            try:
+                # Find the root project directory (up two levels from src/ui)
+                root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+                export_path = os.path.join(root_dir, 'calibrated_rois.txt')
+                
+                with open(export_path, 'w') as f:
+                    f.write("DEFAULT_ROIS = {\n")
+                    for key, roi in self.rois.items():
+                        f.write(f"    '{key}': {{'x': {roi['x']}, 'y': {roi['y']}, 'w': {roi['w']}, 'h': {roi['h']}}},\n")
+                    f.write("}\n")
+            except Exception as e:
+                print(f"Could not write txt file: {e}")
             
             count = len(self.rois)
             QMessageBox.information(
                 self, 
                 "Calibration Saved!", 
                 f"Successfully saved {count} region(s).\n\n"
-                f"The app will now use your custom calibration.\n"
-                f"Restart the capture to use new settings."
+                f"A file named 'calibrated_rois.txt' has been created in your project folder. "
+                f"You can copy the code inside it to permanently update constants.py."
             )
             self.accept()
             

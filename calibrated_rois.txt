@@ -1,0 +1,7 @@
+DEFAULT_ROIS = {
+    'product_name': {'x': 958, 'y': 369, 'w': 739, 'h': 52},
+    'local_price': {'x': 1923, 'y': 1016, 'w': 182, 'h': 70},
+    'friend_price': {'x': 1531, 'y': 584, 'w': 164, 'h': 57},
+    'average_cost': {'x': 712, 'y': 854, 'w': 113, 'h': 48},
+    'quantity_owned': {'x': 734, 'y': 795, 'w': 86, 'h': 51},
+}

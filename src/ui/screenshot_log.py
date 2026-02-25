@@ -1,8 +1,6 @@
 """
 Screenshot log widget for visual capture history
-Dark theme overlay style
 """
-
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, 
                              QScrollArea, QFrame, QGraphicsDropShadowEffect,
                              QApplication)
@@ -47,34 +45,30 @@ class ScreenshotThumbnail(QFrame):
         self.time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.time_label)
         
-        self.setStyleSheet(f"""
-            ScreenshotThumbnail {{
-                background-color: {COLORS['bg_dark_log']};
-                border: 1px solid {COLORS['border_dark']};
-                border-radius: 8px;
-            }}
-            ScreenshotThumbnail:hover {{
-                border: 2px solid {COLORS['accent_teal']};
-            }}
-        """)
+        self.setStyleSheet(f"ScreenshotThumbnail {{ background-color: {COLORS['bg_dark_log']}; border: 1px solid {COLORS['border_dark']}; border-radius: 8px; }} ScreenshotThumbnail:hover {{ border: 2px solid {COLORS['accent_teal']}; }}")
 
     def enterEvent(self, event):
-        self.hover_timer.start(300)
+        self.hover_timer.start(400)
         super().enterEvent(event)
+        
     def leaveEvent(self, event):
         self.hover_timer.stop()
         self.hide_enlarged()
         super().leaveEvent(event)
+        
     def show_enlarged(self):
         if self.enlarged_view is None:
             self.enlarged_view = EnlargedScreenshotView(self.full_pixmap, self)
         pos = self.mapToGlobal(self.rect().topLeft())
-        self.enlarged_view.move(pos.x() - 50, pos.y() - 250)
+        # SPAN FAR TO THE LEFT so the mouse doesn't overlap it and cause flickering!
+        self.enlarged_view.move(pos.x() - 430, pos.y() - 100)
         self.enlarged_view.show()
         self.enlarged_view.raise_()
+        
     def hide_enlarged(self):
         if self.enlarged_view:
             self.enlarged_view.hide()
+            
     def mousePressEvent(self, event):
         self.clicked.emit(self.timestamp)
         super().mousePressEvent(event)
@@ -84,6 +78,7 @@ class EnlargedScreenshotView(QFrame):
         super().__init__(parent, Qt.WindowType.Popup)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setup_ui(pixmap)
+        
     def setup_ui(self, pixmap: QPixmap):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 8, 8, 8)
@@ -104,7 +99,6 @@ class ScreenshotLogWidget(QFrame):
     def setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(12, 12, 12, 12)
-        layout.setSpacing(12)
         
         header = QLabel("System Log")
         header.setStyleSheet(f"color: {COLORS['text_inverse']}; font-size: 16px; font-weight: 700; padding-bottom: 8px;")
@@ -132,12 +126,11 @@ class ScreenshotLogWidget(QFrame):
     
     def add_screenshot(self, image: np.ndarray, status: str = "Captured"):
         if len(image.shape) == 3:
-            height, width, channels = image.shape
-            bytes_per_line = channels * width
-            q_image = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888).rgbSwapped()
+            h, w, c = image.shape
+            q_image = QImage(image.data, w, h, c * w, QImage.Format.Format_RGB888).rgbSwapped()
         else:
-            height, width = image.shape
-            q_image = QImage(image.data, width, height, width, QImage.Format.Format_Grayscale8)
+            h, w = image.shape
+            q_image = QImage(image.data, w, h, w, QImage.Format.Format_Grayscale8)
         
         pixmap = QPixmap.fromImage(q_image)
         timestamp = datetime.now().strftime("%H:%M:%S")
@@ -148,16 +141,14 @@ class ScreenshotLogWidget(QFrame):
         
         if self.thumbnails_layout.count() > 20:
             item = self.thumbnails_layout.takeAt(self.thumbnails_layout.count() - 1)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget(): item.widget().deleteLater()
                 
         self.status_label.setText(f"Last update: {timestamp}")
     
     def clear_log(self):
         while self.thumbnails_layout.count():
             item = self.thumbnails_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+            if item.widget(): item.widget().deleteLater()
         self.screenshots.clear()
         self.status_label.setText("Ready")
         

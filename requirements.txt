@@ -35,5 +35,6 @@ pytest-cov>=4.1.0
 # Build Tools
 pyinstaller>=6.0.0
 
-#lock to endfield.exe
+# Window Capture (Endfield.exe locking)
 pygetwindow>=0.0.9
+pywin32>=306     # Win32 API for PID from window handle (GetWindowThreadProcessId)
