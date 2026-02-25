@@ -216,8 +216,8 @@ class CaptureWorker(QThread):
         self.status_update.emit(f"Captured: {product_data.name}")
         self.product_captured.emit(
             product_data.name, product_data.region, product_data.local_price, 
-            0, product_data.quantity_owned, product_data.average_cost or 0, screenshot
-        )
+            product_data.friend_price or 0, product_data.quantity_owned, product_data.average_cost or 0, screenshot
+)
 
     def stop(self):
         """Stop the capture session safely"""

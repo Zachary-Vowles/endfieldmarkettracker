@@ -15,9 +15,7 @@ import sys
 import os
 import logging
 logging.basicConfig(level=logging.DEBUG)
-logger.add("debug_log.txt", rotation="500 MB", level="DEBUG")
-# Configure logger to save to a file and show in console
-logger.add("debug_log.txt", rotation="500 MB")
+logger.add("debug_log.txt", rotation="30 MB", level="DEBUG")
 
 def diagnostic_ocr_step(image):
     start = time.time()

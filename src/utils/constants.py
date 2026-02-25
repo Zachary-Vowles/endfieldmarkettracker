@@ -61,12 +61,14 @@ CAPTURE_SETTINGS = {
 
 # UI Regions for OCR - CALIBRATED FOR 2560x1440 FULLSCREEN
 DEFAULT_ROIS = {
-    'product_name': {'x': 958, 'y': 369, 'w': 739, 'h': 52},
-    'local_price': {'x': 1923, 'y': 1016, 'w': 182, 'h': 70},
-    'friend_price': {'x': 1531, 'y': 584, 'w': 164, 'h': 57},
-    'average_cost': {'x': 712, 'y': 854, 'w': 113, 'h': 48},
-    'quantity_owned': {'x': 734, 'y': 795, 'w': 86, 'h': 51},
+    'product_name': {'x': 963, 'y': 366, 'w': 740, 'h': 56},
+    'local_price': {'x': 2038, 'y': 480, 'w': 104, 'h': 46},
+    'friend_price': {'x': 1590, 'y': 590, 'w': 96, 'h': 56},
+    'average_cost': {'x': 723, 'y': 857, 'w': 102, 'h': 43},
+    'quantity_owned': {'x': 712, 'y': 812, 'w': 94, 'h': 30},
 }
+
+
 
 #{'x': 710, 'y': 804, 'w': 132, 'h': 44} where quantity owned should be.
 #
@@ -81,28 +83,28 @@ AUTO_DETECT = {
 # Product dictionary mapping names to their specific regions
 PRODUCT_REGIONS = {
     # Wuling Region
-    "Wuling Frozen Pears": Region.WULING,
-    "Wuxia Movies": Region.WULING,
-    "Nymphsprout": Region.WULING,
-    "Eureka Anti-smog Tincture": Region.WULING,
+    "Wuling Frozen Pears [pkg]": Region.WULING,
+    "Wuxia Movies [pkg]": Region.WULING,
+    "Nymphsprout [pkg]": Region.WULING,
+    "Eureka Anti-smog Tincture [pkg]": Region.WULING,
     "Wuling Frozen Pears [pkg]": Region.WULING,
     "Wuxia Movies [pkg]": Region.WULING,
     "Nymphsprout [pkg]": Region.WULING,
     "Eureka Anti-smog Tincture [pkg]": Region.WULING,
     
     # Valley IV Region
-    "Ankhorilling Kitchenware": Region.VALLEY,
-    "Musbeast Scrimshaw Dangles": Region.VALLEY,
-    "Witchcraft Mining Drill": Region.VALLEY,
-    "Aggeloi War Tins": Region.VALLEY,
-    "Valley Hydroculture Fillets": Region.VALLEY,
-    "Unity Syrup": Region.VALLEY,
-    "Originium Saplings": Region.VALLEY,
-    "Seš'qamam Knucklebones": Region.VALLEY,
-    "Astarron Crystals": Region.VALLEY,
-    "Vigilant Pickaxes": Region.VALLEY,
-    "Hard Noggin Helmets": Region.VALLEY,
-    "Scrap Toy Blocks": Region.VALLEY,
+    "Ankhorilling Kitchenware [pkg]": Region.VALLEY,
+    "Musbeast Scrimshaw Dangles [pkg]": Region.VALLEY,
+    "Witchcraft Mining Drill [pkg]": Region.VALLEY,
+    "Aggeloi War Tins [pkg]": Region.VALLEY,
+    "Valley Hydroculture Fillets [pkg]": Region.VALLEY,
+    "Unity Syrup [pkg]": Region.VALLEY,
+    "Originium Saplings [pkg]": Region.VALLEY,
+    "Seš'qamam Knucklebones [pkg]": Region.VALLEY,
+    "Astarron Crystals [pkg]": Region.VALLEY,
+    "Vigilant Pickaxes [pkg]": Region.VALLEY,
+    "Hard Noggin Helmets [pkg]": Region.VALLEY,
+    "Scrap Toy Blocks [pkg]": Region.VALLEY,
     "Ankhorilling Kitchenware [pkg]": Region.VALLEY,
     "Musbeast Scrimshaw Dangles [pkg]": Region.VALLEY,
     "Witchcraft Mining Drill [pkg]": Region.VALLEY,

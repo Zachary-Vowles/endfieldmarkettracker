@@ -94,7 +94,7 @@ class DatabaseManager:
             if friend_price and local_price:
                 absolute_diff = friend_price - local_price
                 
-                if absolute_diff > product.highest_difference_ever:
+                if absolute_diff > (product.highest_difference_ever or 0):
                     product.highest_difference_ever = absolute_diff
                     product.highest_difference_date = datetime.utcnow()
             

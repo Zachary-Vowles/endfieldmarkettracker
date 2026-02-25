@@ -10,16 +10,7 @@ import ctypes
 from ctypes import wintypes
 import os
 
-# Make process DPI aware to get correct coordinates on scaled displays
-try:
-    # Windows 10 version 1607+
-    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # Per-monitor DPI aware
-except Exception:
-    try:
-        # Older Windows
-        ctypes.windll.user32.SetProcessDPIAware()
-    except Exception:
-        pass
+
 def capture_full_screen(self):
     """Captures only the game window area."""
     rect = self.get_game_window_rect()
@@ -172,7 +163,7 @@ class ScreenCapture:
         screenshot = self.sct.grab(monitor)
         img = np.array(screenshot)
         
-        #not sure if this debug screencapture works
+        #not sure if this debug screencapture works - yes it does, but only captures the very last thing seen, which is the window itself
         debug_path = "last_capture_debug.png"
         cv2.imwrite(debug_path, cv2.cvtColor(img, cv2.COLOR_BGRA2BGR))
         logger.info(f"Saved debug screenshot to: {os.path.abspath(debug_path)}")

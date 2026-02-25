@@ -188,8 +188,9 @@ class MainWindow(QMainWindow):
         self.valley_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.valley_scroll.setWidget(self.valley_container)
 
-        self.region_tabs.addTab(self.wuling_scroll, "Wuling")
         self.region_tabs.addTab(self.valley_scroll, "Valley IV")
+        self.region_tabs.addTab(self.wuling_scroll, "Wuling")
+        
         
         layout.addWidget(self.region_tabs)
         return widget

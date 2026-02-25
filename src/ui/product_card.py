@@ -3,9 +3,9 @@ Product card widget for displaying trade opportunities
 """
 
 from PyQt6.QtWidgets import (QFrame, QVBoxLayout, QHBoxLayout, QLabel, 
-                             QWidget, QGraphicsDropShadowEffect)
+                             QWidget, QGraphicsDropShadowEffect, QSizePolicy)
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor, QFont
+from PyQt6.QtGui import QColor
 from src.utils.constants import COLORS, CURRENCIES, Region
 
 class ProductCard(QFrame):
@@ -15,14 +15,30 @@ class ProductCard(QFrame):
         self.product_name = product_name
         self.region = Region(region) if isinstance(region, str) else region
         self.setObjectName("productCard")
-        # WIDENED CARD to prevent clipping
-        self.setFixedSize(360, 220) 
+        
+        # RESTORED FIXED WIDTH to prevent stretching
+        self.setFixedSize(320, 220) 
+        
         self.setup_ui()
         self.apply_shadow()
+        self.apply_base_style()
+        
+    def apply_base_style(self):
+        """Forces the CSS styling so borders are never lost"""
+        self.setStyleSheet(f"""
+            QFrame#productCard {{
+                background-color: {COLORS['bg_card']};
+                border-radius: 12px;
+                border: 1px solid {COLORS['border_light']};
+            }}
+            QFrame#productCard:hover {{
+                border: 1px solid {COLORS['accent_teal']};
+            }}
+        """)
     
     def setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(8)
         
         # Header
@@ -48,7 +64,6 @@ class ProductCard(QFrame):
         local_title.setObjectName("secondaryText")
         local_layout.addWidget(local_title)
         self.local_price_label = QLabel("--")
-        self.local_price_label.setMinimumWidth(80) # Prevent clipping
         self.local_price_label.setStyleSheet(f"color: {COLORS['text_primary']}; font-size: 18px; font-weight: 700;")
         local_layout.addWidget(self.local_price_label)
         price_layout.addLayout(local_layout)
@@ -60,7 +75,6 @@ class ProductCard(QFrame):
         friend_title.setObjectName("secondaryText")
         friend_layout.addWidget(friend_title)
         self.friend_price_label = QLabel("--")
-        self.friend_price_label.setMinimumWidth(80) # Prevent clipping
         self.friend_price_label.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.friend_price_label.setStyleSheet(f"color: {COLORS['text_primary']}; font-size: 18px; font-weight: 700;")
         friend_layout.addWidget(self.friend_price_label)
@@ -71,7 +85,7 @@ class ProductCard(QFrame):
         # Profit per unit indicator
         profit_layout = QHBoxLayout()
         profit_title = QLabel("Unit Profit:")
-        profit_title.setObjectName("secondaryText")
+        profit_title.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 600;")
         profit_layout.addWidget(profit_title)
         profit_layout.addStretch()
         
@@ -80,10 +94,8 @@ class ProductCard(QFrame):
         profit_layout.addWidget(self.profit_label)
         layout.addLayout(profit_layout)
 
-        # Separator line
         line = QFrame()
         line.setFrameShape(QFrame.Shape.HLine)
-        line.setFrameShadow(QFrame.Shadow.Sunken)
         line.setStyleSheet(f"background-color: {COLORS['border_light']}; max-height: 1px;")
         layout.addWidget(line)
         
@@ -138,7 +150,13 @@ class ProductCard(QFrame):
             self.total_profit_label.setStyleSheet(f"color: {COLORS['text_secondary']}; font-weight: 700;")
 
     def highlight_as_best(self):
-        self.setStyleSheet(f"QFrame#productCard {{ background-color: {COLORS['bg_card']}; border-radius: 12px; border: 2px solid {COLORS['accent_yellow']}; }}")
+        self.setStyleSheet(f"""
+            QFrame#productCard {{ 
+                background-color: {COLORS['bg_card']}; 
+                border-radius: 12px; 
+                border: 2px solid {COLORS['accent_yellow']}; 
+            }}
+        """)
     
     def enterEvent(self, event):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
