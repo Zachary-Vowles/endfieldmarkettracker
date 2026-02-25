@@ -10,9 +10,10 @@ class ScreenCapture:
         self.window_title = "Endfield" 
 
     def get_game_window_rect(self):
-        """Locates the game window boundaries."""
+        """Locates the game window boundaries explicitly by Exact Title."""
         try:
-            windows = gw.getWindowsWithTitle(self.window_title)
+            # Enforce EXACT match to avoid grabbing folders/screenshots named "Endfield"
+            windows = [w for w in gw.getAllWindows() if w.title == self.window_title]
             if windows:
                 win = windows[0]
                 if win.isMinimized: return None

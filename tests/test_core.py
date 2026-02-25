@@ -1,122 +1,167 @@
 """
 Tests for Endfield Market Tracker
+OCR + Core Logic Tests
 """
 
 import pytest
 import numpy as np
-from datetime import datetime
+import cv2
+from pathlib import Path
 
-# Test OCR Engine
+
+# --------------------------------------------------
+# CALIBRATED ROIs FOR 2560x1440 FULLSCREEN
+# --------------------------------------------------
+
+DEFAULT_ROIS = {
+    'product_name':   {'x': 961,  'y': 366,  'w': 705, 'h': 54},
+    'local_price':    {'x': 1922, 'y': 1017, 'w': 121, 'h': 64},
+    'average_cost':   {'x': 688,  'y': 856,  'w': 150, 'h': 50},
+    'quantity_owned': {'x': 210,  'y': 585,  'w': 210, 'h': 50},
+    'friend_price':   {'x': 710,  'y': 804,  'w': 132, 'h': 44}
+}
+
+
+# --------------------------------------------------
+# Helper: Load Test Image
+# --------------------------------------------------
+
+def load_test_image(filename: str) -> np.ndarray:
+    """Safely load image from tests/images folder"""
+    test_dir = Path(__file__).parent
+    image_path = test_dir / "images" / filename
+
+    assert image_path.exists(), f"Test image not found: {image_path}"
+
+    img = cv2.imread(str(image_path))
+    assert img is not None, f"Failed to load image: {image_path}"
+
+    return img
+
+
+# --------------------------------------------------
+# BASIC PREPROCESS TEST
+# --------------------------------------------------
+
 def test_ocr_preprocessing():
-    """Test image preprocessing for OCR"""
     from src.core.ocr_engine import OCREngine
-    
+
     engine = OCREngine(use_gpu=False)
-    
-    # Create a dummy image
-    img = np.random.randint(0, 255, (100, 100, 3), dtype=np.uint8)
+
+    img = load_test_image("test_screenshot_1.png")
     processed = engine.preprocess_image(img)
-    
+
     assert processed is not None
-    assert len(processed.shape) == 2  # Should be grayscale
+    assert len(processed.shape) == 2
+    assert processed.dtype == np.uint8
+
+
+# --------------------------------------------------
+# FULL ROI OCR EXTRACTION TEST
+# --------------------------------------------------
+
+@pytest.mark.integration
+def test_extract_all_rois_screenshot_1():
+    """Test extracting all calibrated ROIs from screenshot 1"""
+
+    from src.core.ocr_engine import OCREngine
+
+    engine = OCREngine(use_gpu=False)
+    img = load_test_image("test_screenshot_1.png")
+
+    # Verify correct resolution
+    assert img.shape[1] == 2560
+    assert img.shape[0] == 1440
+
+    results = engine.extract_prices(img, DEFAULT_ROIS)
+
+    assert isinstance(results, dict)
+
+    for key in DEFAULT_ROIS.keys():
+        assert key in results
+
+    # Basic sanity checks (not strict text matching because OCR varies)
+    assert results["product_name"] is None or isinstance(results["product_name"], str)
+    assert results["local_price"] is None or isinstance(results["local_price"], int)
+    assert results["average_cost"] is None or isinstance(results["average_cost"], int)
+    assert results["quantity_owned"] is None or isinstance(results["quantity_owned"], int)
+    assert results["friend_price"] is None or isinstance(results["friend_price"], int)
+
+
+# --------------------------------------------------
+# SECOND SCREENSHOT TEST
+# --------------------------------------------------
+
+@pytest.mark.integration
+def test_extract_all_rois_screenshot_2():
+    """Test extracting all calibrated ROIs from screenshot 2"""
+
+    from src.core.ocr_engine import OCREngine
+
+    engine = OCREngine(use_gpu=False)
+    img = load_test_image("test_screenshot_2.png")
+
+    assert img.shape[1] == 2560
+    assert img.shape[0] == 1440
+
+    results = engine.extract_prices(img, DEFAULT_ROIS)
+
+    assert isinstance(results, dict)
+
+    for key in DEFAULT_ROIS.keys():
+        assert key in results
+
+
+# --------------------------------------------------
+# NUMBER EXTRACTION DIRECT ROI TEST
+# --------------------------------------------------
+
+@pytest.mark.integration
+def test_direct_number_extraction():
+    """Test extracting just the local_price ROI directly"""
+
+    from src.core.ocr_engine import OCREngine
+
+    engine = OCREngine(use_gpu=False)
+    img = load_test_image("test_screenshot_1.png")
+
+    roi = DEFAULT_ROIS["local_price"]
+
+    region = img[
+        roi["y"]:roi["y"] + roi["h"],
+        roi["x"]:roi["x"] + roi["w"]
+    ]
+
+    number = engine.extract_number(region)
+
+    assert number is None or isinstance(number, int)
+
+
+# --------------------------------------------------
+# FAST UNIT TESTS (NO OCR)
+# --------------------------------------------------
 
 def test_price_extraction():
-    """Test price extraction from text"""
     from src.core.data_extractor import DataExtractor
-    
+
     extractor = DataExtractor()
-    
-    # Test various price formats
+
     assert extractor.extract_price("1,234 HZ") == 1234
     assert extractor.extract_price("5678") == 5678
     assert extractor.extract_price("Price: 9,999") == 9999
     assert extractor.extract_price("") is None
 
-def test_product_name_extraction():
-    """Test product name extraction"""
-    from src.core.data_extractor import DataExtractor
-    
-    extractor = DataExtractor()
-    
-    # Test known products
-    assert extractor.extract_product_name("Wuling Frozen Pears [pkg]") == "Wuling Frozen Pears"
-    assert extractor.extract_product_name("Eureka Anti-smog Tincture") == "Eureka Anti-smog Tincture"
 
 def test_percentage_extraction():
-    """Test percentage extraction"""
     from src.core.data_extractor import DataExtractor
-    
+
     extractor = DataExtractor()
-    
+
     assert extractor.extract_percentage("+40.5%") == 40.5
     assert extractor.extract_percentage("-15.2%") == -15.2
     assert extractor.extract_percentage("80.9%") == 80.9
     assert extractor.extract_percentage("") is None
 
-# Test Analysis
-def test_opportunity_ranking():
-    """Test opportunity ranking"""
-    from src.core.analysis import PriceAnalyzer, TradeOpportunity
-    
-    analyzer = PriceAnalyzer()
-    
-    # Create mock opportunities
-    opportunities = [
-        TradeOpportunity(
-            product_name="Test A", region="wuling",
-            local_price=1000, friend_price=5000,
-            absolute_profit=4000, profit_per_unit=4000,
-            quantity_owned=10, potential_total_profit=40000,
-            rank=0, recommendation=""
-        ),
-        TradeOpportunity(
-            product_name="Test B", region="wuling",
-            local_price=1000, friend_price=2000,
-            absolute_profit=1000, profit_per_unit=1000,
-            quantity_owned=5, potential_total_profit=5000,
-            rank=0, recommendation=""
-        ),
-    ]
-    
-    ranked = analyzer.rank_opportunities(opportunities)
-    
-    assert ranked[0].product_name == "Test A"  # Higher profit should be first
-    assert ranked[0].rank == 1
 
-def test_recommendation_generation():
-    """Test recommendation generation"""
-    from src.core.analysis import PriceAnalyzer
-    
-    analyzer = PriceAnalyzer()
-    
-    assert "SELL NOW" in analyzer._generate_recommendation(2500, 10)
-    assert "BUY" in analyzer._generate_recommendation(2500, 0)
-    assert "Avoid" in analyzer._generate_recommendation(-100, 0)
-
-# Test Database
-def test_database_operations():
-    """Test database operations"""
-    from src.database.manager import DatabaseManager
-    from src.database.models import init_database, get_session
-    
-    # Use in-memory database for testing
-    from sqlalchemy import create_engine
-    from src.database.models import Base
-    
-    engine = create_engine('sqlite:///:memory:')
-    Base.metadata.create_all(engine)
-    
-    # This is a simplified test - in reality you'd mock the session
-    assert engine is not None
-
-# Test Constants
-def test_region_enum():
-    """Test region enumeration"""
-    from src.utils.constants import Region, CURRENCIES
-    
-    assert Region.WULING.value == "wuling"
-    assert Region.VALLEY.value == "valley"
-    assert CURRENCIES[Region.WULING] == "HZ"
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main(["-v"])

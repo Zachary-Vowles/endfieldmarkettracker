@@ -39,14 +39,14 @@ class DataExtractor:
     
     def extract_product_name(self, text: str) -> Optional[str]:
         """Extract product name from OCR text"""
-        text_lower = text.lower()
+        text_lower = str(text).lower()
         
         # Check against known products
         for product, pattern in self.product_patterns.items():
             if pattern.search(text_lower):
-                return product
+                return product # Return the exact, properly formatted name
         
-        # If no match, return the text cleaned up
+        # If no match, return the text cleaned up - can replace with return None to be stricter, maybe will cause an issue - check known product list.
         cleaned = text.strip().replace("[pkg]", "").strip()
         return cleaned if cleaned else None
     
@@ -87,33 +87,28 @@ class DataExtractor:
             return 0
         
         # Look for "Owned: X" or just a number
-        match = re.search(r'Owned[:\\s]*(\\d+)', text, re.IGNORECASE)
+        match = re.search(r'Owned[\s]*(\d+)', str(text), re.IGNORECASE) ##old version was: match = re.search(r'Owned[:\\s]*(\\d+)', text, re.IGNORECASE)
         if match:
             return int(match.group(1))
         
         # Try to find any number
-        numbers = re.findall(r'\\d+', text)
+        numbers = re.findall(r'\d+', str(text)) ##old version was: numbers = re.findall(r'\\d+', text)
         if numbers:
             return int(numbers[0])
         
         return 0
     
-    def determine_region(self, text: str) -> str:
-        """Determine region from text (Wuling or Valley)"""
-        text_lower = text.lower()
-        
-        if 'wuling' in text_lower or 'hz' in text_lower:
-            return Region.WULING.value
-        elif 'valley' in text_lower:
-            return Region.VALLEY.value
-        
-        # Default to Wuling if can't determine
+    def determine_region(self, name: str) -> str:
+        """Determine region strictly from the verified product name"""
+        from src.utils.constants import PRODUCT_REGIONS
+        if name in PRODUCT_REGIONS:
+            return PRODUCT_REGIONS[name].value
         return Region.WULING.value
 
 
     def process_ocr_results(self, ocr_results: Dict) -> Optional[ProductData]:
         """Process raw OCR results into structured product data"""
-        logger.info(f"Processing OCR results: {ocr_results}")
+        logger.debug(f"Raw OCR Dictionary: {ocr_results}")
         try:
             # Safely grab strings
             name_text = str(ocr_results.get('product_name', ''))
@@ -122,17 +117,18 @@ class DataExtractor:
             local_price = self.extract_price(ocr_results.get('local_price'))
             friend_price = self.extract_price(ocr_results.get('friend_price'))
             
-            # Allow partial readings! If we have NEITHER a name nor a friend price, reject.
+            # To stitch screens, we need AT LEAST a product name OR a friend price. 
+            # If we have neither, the screen is useless to us right now.
             if not name and not friend_price:
                 return None
 
             product_data = ProductData(
                 name=name if name else "",
-                region=self.determine_region(name_text) if name else "",
+                region=self.determine_region(name) if name else "",
                 local_price=local_price if local_price else 0,
                 friend_price=friend_price,
                 average_cost=self.extract_price(ocr_results.get('average_cost')),
-                quantity_owned=self.extract_quantity(str(ocr_results.get('quantity_owned', ''))),
+                quantity_owned=self.extract_quantity(ocr_results.get('quantity_owned', '')),
                 vs_local_percent=self.extract_percentage(str(ocr_results.get('vs_local', ''))),
                 vs_owned_percent=self.extract_percentage(str(ocr_results.get('vs_owned', '')))
             )

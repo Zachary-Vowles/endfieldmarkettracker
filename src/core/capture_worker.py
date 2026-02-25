@@ -68,9 +68,15 @@ class CaptureWorker(QThread):
         
         # Mutex for thread safety
         self.mutex = QMutex()
+
+        # Two-Screen State Machine Memory
+        self.pending_product = None
+        self.memory_timeout = 0
         
         # Debug window state
         self.debug_window_created = False
+
+
     def run(self):
         """Main capture loop"""
         self.running = True
@@ -128,7 +134,7 @@ class CaptureWorker(QThread):
         cv2.waitKey(1)
         # --- DEBUG VIEW END ---
 
-        # Execute OCR Detection
+        # Execute OCR Detection using full resolution
         full_scaled_rois = {}
         for name, roi in self.rois.items():
             sx, sy = int(roi['x'] * scale_x), int(roi['y'] * scale_y)
@@ -138,23 +144,28 @@ class CaptureWorker(QThread):
         product_data = self._detect_product_screen(screenshot, full_scaled_rois)
         
         if product_data:
-            # STATE 1: We are looking at the main Product Screen
+            current_time = time.time()
+            
+            # STATE 1: MAIN SCREEN DETECTED (We see a Name and a Local Price)
             if product_data.name and product_data.local_price > 0:
                 self.pending_product = product_data
+                self.memory_timeout = current_time + 15.0 # Remember this for 15 seconds
                 self.status_update.emit(f"Scanned {product_data.name}. Click Friend's Price...")
                 
-            # STATE 2: We are looking at the Friend Price Screen AND have memory
+            # STATE 2: FRIEND PRICE SCREEN DETECTED (We see a friend price AND have a product in memory)
             elif product_data.friend_price and self.pending_product:
-                # Stitch the new friend price onto our memorized product
-                self.pending_product.friend_price = product_data.friend_price
-                
-                # Verify and Save to Database!
-                product_key = f"{self.pending_product.name}_{self.pending_product.local_price}"
-                if self._should_capture(product_key, self.pending_product):
-                    self._capture_product(self.pending_product, screenshot)
+                if current_time < self.memory_timeout:
+                    # Stitch the friend price onto our memorized product!
+                    self.pending_product.friend_price = product_data.friend_price
                     
-                    # Wipe memory so we don't save duplicates
+                    product_key = f"{self.pending_product.name}_{self.pending_product.local_price}"
+                    if self._should_capture(product_key, self.pending_product):
+                        self._capture_product(self.pending_product, screenshot)
+                        self.pending_product = None # Clear memory after success
+                else:
+                    # Memory expired, clear it
                     self.pending_product = None
+                    self.status_update.emit("Capture timed out. Please click a good again.")
 
     def _detect_product_screen(self, screenshot: np.ndarray, scaled_rois: dict) -> Optional[ProductData]:
         """OCR detection using scaled coordinates"""
