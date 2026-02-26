@@ -60,8 +60,8 @@ class ScreenshotThumbnail(QFrame):
         if self.enlarged_view is None:
             self.enlarged_view = EnlargedScreenshotView(self.full_pixmap, self)
         pos = self.mapToGlobal(self.rect().topLeft())
-        # SPAN FAR TO THE LEFT so the mouse doesn't overlap it and cause flickering!
-        self.enlarged_view.move(pos.x() - 430, pos.y() - 100)
+        # Move MUCH further left to ensure mouse doesn't overlap
+        self.enlarged_view.move(pos.x() - 450, pos.y() - 50)
         self.enlarged_view.show()
         self.enlarged_view.raise_()
         
@@ -75,7 +75,8 @@ class ScreenshotThumbnail(QFrame):
 
 class EnlargedScreenshotView(QFrame):
     def __init__(self, pixmap: QPixmap, parent=None):
-        super().__init__(parent, Qt.WindowType.Popup)
+        super().__init__(parent, Qt.WindowType.ToolTip)  # Changed from Popup to ToolTip
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setup_ui(pixmap)
         

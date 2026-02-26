@@ -203,11 +203,14 @@ class CaptureWorker(QThread):
         """Save data and update UI signals"""
         product_key = f"{product_data.name}_{product_data.local_price}"
         
-        # Save to DB
+        # Save to DB - NOW INCLUDING friend_price, average_cost, and quantity_owned
         reading = self.db_manager.save_price_reading(
             product_name=product_data.name,
             region=product_data.region,
             local_price=product_data.local_price,
+            friend_price=product_data.friend_price,  # ADD THIS LINE
+            average_cost=product_data.average_cost,  # ADD THIS LINE
+            quantity_owned=product_data.quantity_owned,  # ADD THIS LINE
             session_id=self.session_id,
         )
         

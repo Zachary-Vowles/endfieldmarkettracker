@@ -1,7 +1,7 @@
 DEFAULT_ROIS = {
-    'product_name': {'x': 963, 'y': 366, 'w': 740, 'h': 56},
-    'local_price': {'x': 2038, 'y': 480, 'w': 104, 'h': 46},
-    'friend_price': {'x': 1590, 'y': 590, 'w': 96, 'h': 56},
-    'average_cost': {'x': 723, 'y': 857, 'w': 102, 'h': 43},
-    'quantity_owned': {'x': 712, 'y': 812, 'w': 94, 'h': 30},
+    'product_name': {'x': 961, 'y': 368, 'w': 736, 'h': 52},
+    'local_price': {'x': 2028, 'y': 475, 'w': 139, 'h': 52},
+    'friend_price': {'x': 1588, 'y': 587, 'w': 121, 'h': 62},
+    'average_cost': {'x': 707, 'y': 862, 'w': 107, 'h': 38},
+    'quantity_owned': {'x': 694, 'y': 811, 'w': 113, 'h': 35},
 }
