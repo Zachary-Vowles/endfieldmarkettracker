@@ -64,9 +64,11 @@ class DataExtractor:
         Allows partial data! It just needs enough info for the current capture state.
         """
         # State 1 Check: We have a known Name AND a Local Price
-        is_main_screen = bool(data.name in self.known_products and data.local_price)
+        is_main_screen = bool(data.name in self.known_products and data.local_price and data.local_price > 0)
         
-        # State 2 Check: We have a Friend Price (Even if name/cost is blank)
-        is_friend_screen = bool(data.friend_price)
+        # State 2 Check: We have a Friend Price that looks reasonable (not OCR noise)
+        # Note: We don't require name validation here because the friend price screen
+        # might not show the product name clearly, or OCR might fail on it
+        is_friend_screen = bool(data.friend_price and data.friend_price > 100 and data.friend_price < 10000)
         
         return is_main_screen or is_friend_screen

@@ -89,53 +89,52 @@ class ScreenCapture:
             windows = [w for w in gw.getAllWindows() if w.title == self.window_title]
 
             if not windows:
-                # logger.warning(f"No window with title '{self.window_title}' found.")
+                logger.warning(f"No window with title '{self.window_title}' found.")
                 return None
 
             win = windows[0]
-        
+            
             if win.isMinimized:
-                # logger.warning(f"Window '{self.window_title}' is minimized.")
+                logger.warning(f"Window '{self.window_title}' is minimized.")
                 return None
 
             hwnd = win._hWnd
             process_id = self.get_window_pid(hwnd)
-        
+            
             if process_id is None:
                 return None
 
             try:
                 process = psutil.Process(process_id)
                 actual_process_name = process.name()
-            
+                
                 if actual_process_name.lower() != self.process_name.lower():
-                    # logger.warning(
-                    #     f"Found window with title '{self.window_title}', "
-                    #     f"but process name is '{actual_process_name}', not '{self.process_name}'."
-                    # )
+                    logger.warning(
+                        f"Found window with title '{self.window_title}', "
+                        f"but process name is '{actual_process_name}', not '{self.process_name}'."
+                    )
                     return None
 
                 # Use client rect instead of window rect to exclude borders
                 rect = self.get_client_rect(hwnd)
                 if rect:
-                    # logger.info(
-                    #     f"Found window: {win.title} (PID: {process_id}, "
-                    #     f"Process: {actual_process_name}, Rect: {rect})"
-                    # )
+                    logger.info(
+                        f"Found window: {win.title} (PID: {process_id}, "
+                        f"Process: {actual_process_name}, Rect: {rect})"
+                    )
                     self.cached_rect = rect
                     return rect
-                
+                    
             except psutil.NoSuchProcess:
-                # logger.warning(f"Process {process_id} no longer exists.")
+                logger.warning(f"Process {process_id} no longer exists.")
                 return None
 
         except Exception as e:
-            # logger.error(f"Window search failed: {e}")
-            pass
-        
+            logger.error(f"Window search failed: {e}")
+            
         # Return cached rect if available and window exists but had an error
         if self.cached_rect:
-            # logger.debug("Using cached window rectangle")
+           # logger.debug("Using cached window rectangle")
             return self.cached_rect
         return None
 

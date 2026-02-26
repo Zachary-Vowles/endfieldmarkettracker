@@ -208,9 +208,9 @@ class CaptureWorker(QThread):
             product_name=product_data.name,
             region=product_data.region,
             local_price=product_data.local_price,
-            friend_price=product_data.friend_price,  # ADD THIS LINE
-            average_cost=product_data.average_cost,  # ADD THIS LINE
-            quantity_owned=product_data.quantity_owned,  # ADD THIS LINE
+            friend_price=product_data.friend_price,  
+            average_cost=product_data.average_cost,  
+            quantity_owned=product_data.quantity_owned,  
             session_id=self.session_id,
         )
         
