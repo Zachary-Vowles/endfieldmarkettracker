@@ -34,16 +34,32 @@ class DataExtractor:
         if raw_name and isinstance(raw_name, str):
             clean_name = raw_name.strip()
             if clean_name:
-                # 0.4 cutoff handles bad OCR butchering (e.g. reading "0ri9in1um")
-                matches = difflib.get_close_matches(clean_name, self.known_products, n=1, cutoff=0.4)
+                # REJECT if name is just a number (OCR picked up price instead of name)
+                if clean_name.isdigit():
+                    data.name = ""  # Clear it so it won't match as valid
+                    return data  # Return early - this is not a valid product screen
+                
+                # Try exact match first
+                if clean_name in self.known_products:
+                    data.name = clean_name
+                    matches = [clean_name]
+                else:
+                    # 0.6 cutoff is stricter - requires closer match
+                    matches = difflib.get_close_matches(clean_name, self.known_products, n=1, cutoff=0.6)
                 
                 if matches:
-                    data.name = matches[0]
-                    # Map the valid name to its region enum value
-                    region_enum = PRODUCT_REGIONS.get(data.name)
-                    data.region = region_enum.value if region_enum else None
+                    matched_name = matches[0]
+                    # Additional safety: check if the match is actually similar
+                    similarity = difflib.SequenceMatcher(None, clean_name.lower(), matched_name.lower()).ratio()
+                    
+                    if similarity >= 0.5:  # Must be at least 50% similar
+                        data.name = matched_name
+                        region_enum = PRODUCT_REGIONS.get(data.name)
+                        data.region = region_enum.value if region_enum else None
+                    else:
+                        data.name = clean_name  # Keep original if match is too weak
                 else:
-                    data.name = clean_name # fallback so it isn't completely empty
+                    data.name = clean_name  # fallback so it isn't completely empty
 
         return data
 
@@ -51,10 +67,12 @@ class DataExtractor:
         """Safely parses integers from OCR output."""
         if value is None:
             return default
+        if isinstance(value, str):
+            if not value.strip():  # Empty string
+                return default
+            cleaned = ''.join(c for c in value if c.isdigit())
+            return int(cleaned) if cleaned else default
         try:
-            if isinstance(value, str):
-                cleaned = ''.join(c for c in value if c.isdigit())
-                return int(cleaned) if cleaned else default
             return int(value)
         except (ValueError, TypeError):
             return default

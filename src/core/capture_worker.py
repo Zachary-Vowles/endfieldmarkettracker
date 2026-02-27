@@ -147,23 +147,30 @@ class CaptureWorker(QThread):
             current_time = time.time()
             
             # STATE 1: MAIN SCREEN DETECTED (We see a Name and a Local Price)
-            if product_data.name and product_data.local_price > 0:
+            # FIX: Check local_price is not None AND > 0
+            if product_data.name and product_data.local_price is not None and product_data.local_price > 0:
                 self.pending_product = product_data
-                self.memory_timeout = current_time + 15.0 # Remember this for 15 seconds
+                self.memory_timeout = current_time + 15.0
                 self.status_update.emit(f"Scanned {product_data.name}. Click Friend's Price...")
                 
             # STATE 2: FRIEND PRICE SCREEN DETECTED (We see a friend price AND have a product in memory)
-            elif product_data.friend_price and self.pending_product:
+            # FIX: Check friend_price is not None AND > 0
+            elif product_data.friend_price is not None and product_data.friend_price > 0 and self.pending_product:
                 if current_time < self.memory_timeout:
                     # Stitch the friend price onto our memorized product!
                     self.pending_product.friend_price = product_data.friend_price
                     
+                    # Also stitch quantity and average cost if we got them from this screen
+                    if product_data.quantity_owned is not None and product_data.quantity_owned > 0:
+                        self.pending_product.quantity_owned = product_data.quantity_owned
+                    if product_data.average_cost is not None and product_data.average_cost > 0:
+                        self.pending_product.average_cost = product_data.average_cost
+                    
                     product_key = f"{self.pending_product.name}_{self.pending_product.local_price}"
                     if self._should_capture(product_key, self.pending_product):
                         self._capture_product(self.pending_product, screenshot)
-                        self.pending_product = None # Clear memory after success
+                        self.pending_product = None
                 else:
-                    # Memory expired, clear it
                     self.pending_product = None
                     self.status_update.emit("Capture timed out. Please click a good again.")
 

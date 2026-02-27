@@ -319,7 +319,8 @@ class MainWindow(QMainWindow):
     
     def load_todays_data(self):
         readings = self.db_manager.get_best_opportunities_today()
-        if not readings: return
+        if not readings: 
+            return
         
         # Calculate which region is more profitable right now to set the active tab
         max_wuling = max([r.absolute_difference or 0 for r in readings if r.region == Region.WULING.value], default=0)
@@ -330,31 +331,43 @@ class MainWindow(QMainWindow):
         else:
             self.region_tabs.setCurrentIndex(0)
 
-        # Surgical update to prevent flickering
+        # Track which products we've seen this load
+        seen_products = set()
         wuling_idx = 0
         valley_idx = 0
-            
+        
+        # First pass: update existing cards and count positions
         for reading in readings:
             name = reading.product.name
+            seen_products.add(name)
+            
             if name in self.product_cards:
                 card = self.product_cards[name]
                 card.update_data(reading.local_price, reading.friend_price, reading.quantity_owned, reading.average_cost)
             else:
+                # Create new card
                 card = ProductCard(name, reading.region)
                 card.update_data(reading.local_price, reading.friend_price, reading.quantity_owned, reading.average_cost)
                 self.product_cards[name] = card
                 
+                # Add to appropriate layout
                 if reading.region == Region.WULING.value:
                     row = wuling_idx // 3
                     col = wuling_idx % 3
                     self.wuling_layout.addWidget(card, row, col)
+                    wuling_idx += 1
                 elif reading.region == Region.VALLEY.value:
                     row = valley_idx // 3
                     col = valley_idx % 3
                     self.valley_layout.addWidget(card, row, col)
-                    
-            if reading.region == Region.WULING.value: wuling_idx += 1
-            if reading.region == Region.VALLEY.value: valley_idx += 1
+                    valley_idx += 1
+        
+        # Optional: Remove cards for products no longer in today's readings
+        # (Uncomment if you want cards to disappear when products are removed)
+        # for name in list(self.product_cards.keys()):
+        #     if name not in seen_products:
+        #         card = self.product_cards.pop(name)
+        #         card.deleteLater()
     
     def load_price_history(self):
         products = self.db_manager.get_all_products()

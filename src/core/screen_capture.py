@@ -11,40 +11,6 @@ from ctypes import wintypes
 import os
 
 
-def capture_full_screen(self):
-    """Captures only the game window area."""
-    rect = self.get_game_window_rect()
-    
-    if rect:
-        monitor = {
-            "top": rect["top"],
-            "left": rect["left"],
-            "width": rect["width"],
-            "height": rect["height"]
-        }
-        
-        # DEBUG: Log what we're about to capture
-        logger.info(f"Attempting capture at: {monitor}")
-        
-        # Verify this isn't the full desktop
-        full_screen = self.sct.monitors[0]  # All monitors combined
-        if monitor["width"] >= full_screen["width"] and monitor["height"] >= full_screen["height"]:
-            logger.warning("Capture region is full screen size! Window might be fullscreen/borderless.")
-            
-    else:
-        logger.warning("No window rect, falling back to full screen")
-        monitor = self.sct.monitors[1]
-
-        screenshot = self.sct.grab(monitor)
-        img = np.array(screenshot)
-    
-        # DEBUG: Save what was actually captured
-        debug_path = "last_capture_debug.png"
-        cv2.imwrite(debug_path, cv2.cvtColor(img, cv2.COLOR_BGRA2BGR))
-        logger.info(f"Saved debug screenshot to {debug_path}, shape: {img.shape}")
-    
-        return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-
 class ScreenCapture:
     def __init__(self):
         self.sct = mss.mss()
@@ -163,10 +129,10 @@ class ScreenCapture:
         screenshot = self.sct.grab(monitor)
         img = np.array(screenshot)
         
-        #not sure if this debug screencapture works - yes it does, but only captures the very last thing seen, which is the window itself
-        debug_path = "last_capture_debug.png"
-        cv2.imwrite(debug_path, cv2.cvtColor(img, cv2.COLOR_BGRA2BGR))
-        logger.info(f"Saved debug screenshot to: {os.path.abspath(debug_path)}")
+        # COMMENTED out useless debug for now.
+        # debug_path = "last_capture_debug.png"
+        # cv2.imwrite(debug_path, cv2.cvtColor(img, cv2.COLOR_BGRA2BGR))
+        # logger.info(f"Saved debug screenshot to: {os.path.abspath(debug_path)}")
         
         return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 

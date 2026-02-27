@@ -61,12 +61,13 @@ CAPTURE_SETTINGS = {
 
 # UI Regions for OCR - CALIBRATED FOR 2560x1440 FULLSCREEN
 DEFAULT_ROIS = {
-    'product_name': {'x': 961, 'y': 368, 'w': 736, 'h': 52},
-    'local_price': {'x': 2028, 'y': 475, 'w': 139, 'h': 52},
-    'friend_price': {'x': 1588, 'y': 587, 'w': 121, 'h': 62},
-    'average_cost': {'x': 707, 'y': 862, 'w': 107, 'h': 38},
-    'quantity_owned': {'x': 694, 'y': 811, 'w': 113, 'h': 35},
+    'product_name': {'x': 956, 'y': 371, 'w': 755, 'h': 52},
+    'local_price': {'x': 2038, 'y': 488, 'w': 121, 'h': 40},
+    'friend_price': {'x': 1595, 'y': 595, 'w': 105, 'h': 41},
+    'average_cost': {'x': 715, 'y': 860, 'w': 89, 'h': 38},
+    'quantity_owned': {'x': 720, 'y': 809, 'w': 92, 'h': 38},
 }
+
 
 #{'x': 710, 'y': 804, 'w': 132, 'h': 44} where quantity owned should be.
 #
@@ -81,13 +82,9 @@ AUTO_DETECT = {
 # Product dictionary mapping names to their specific regions
 PRODUCT_REGIONS = {
     # Wuling Region
-    "Wuling Frozen Pears [pkg]": Region.WULING,
+    "Wuling Frozen Pears[pkg]": Region.WULING,
     "Wuxia Movies [pkg]": Region.WULING,
-    "Nymphsprout [pkg]": Region.WULING,
-    "Eureka Anti-smog Tincture [pkg]": Region.WULING,
-    "Wuling Frozen Pears [pkg]": Region.WULING,
-    "Wuxia Movies [pkg]": Region.WULING,
-    "Nymphsprout [pkg]": Region.WULING,
+    "Nymphsprout[pkg]": Region.WULING,
     "Eureka Anti-smog Tincture [pkg]": Region.WULING,
     
     # Valley IV Region
@@ -95,26 +92,14 @@ PRODUCT_REGIONS = {
     "Musbeast Scrimshaw Dangles [pkg]": Region.VALLEY,
     "Witchcraft Mining Drill [pkg]": Region.VALLEY,
     "Aggeloi War Tins [pkg]": Region.VALLEY,
-    "Valley Hydroculture Fillets [pkg]": Region.VALLEY,
+    "Valley Hydroculture Fillets[pkg]": Region.VALLEY,
     "Unity Syrup [pkg]": Region.VALLEY,
     "Originium Saplings [pkg]": Region.VALLEY,
     "Seš'qamam Knucklebones [pkg]": Region.VALLEY,
     "Astarron Crystals [pkg]": Region.VALLEY,
     "Vigilant Pickaxes [pkg]": Region.VALLEY,
     "Hard Noggin Helmets [pkg]": Region.VALLEY,
-    "Scrap Toy Blocks [pkg]": Region.VALLEY,
-    "Ankhorilling Kitchenware [pkg]": Region.VALLEY,
-    "Musbeast Scrimshaw Dangles [pkg]": Region.VALLEY,
-    "Witchcraft Mining Drill [pkg]": Region.VALLEY,
-    "Aggeloi War Tins [pkg]": Region.VALLEY,
-    "Valley Hydroculture Fillets [pkg]": Region.VALLEY,
-    "Unity Syrup [pkg]": Region.VALLEY,
-    "Originium Saplings [pkg]": Region.VALLEY,
-    "Seš'qamam Knucklebones [pkg]": Region.VALLEY,
-    "Astarron Crystals [pkg]": Region.VALLEY,
-    "Vigilant Pickaxes [pkg]": Region.VALLEY,
-    "Hard Noggin Helmets [pkg]": Region.VALLEY,
-    "Scrap Toy Blocks [pkg]": Region.VALLEY,
+    "Scrap Toy Blocks [pkg]": Region.VALLEY
 }
 
 # Keep this for backward compatibility with regex compiler
