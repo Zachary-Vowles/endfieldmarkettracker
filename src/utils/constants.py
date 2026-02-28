@@ -67,10 +67,13 @@ DEFAULT_ROIS = {
     'average_cost': {'x': 715, 'y': 860, 'w': 89, 'h': 38},
     'quantity_owned': {'x': 720, 'y': 809, 'w': 92, 'h': 38},
 }
+#these ROIs are ok, but the local price is subject to errors if the price is under 1000, so I may include the entire top bar part to try avoid this.
+#  ROI product_name: {'x': 956, 'y': 371, 'w': 755, 'h': 52}
+#   ROI local_price: {'x': 2038, 'y': 488, 'w': 121, 'h': 40}
+#  ROI average_cost: {'x': 715, 'y': 860, 'w': 89, 'h': 38}
+# ROI quantity_owned: {'x': 720, 'y': 809, 'w': 92, 'h': 38}
+#   ROI friend_price: {'x': 1595, 'y': 595, 'w': 105, 'h': 41}
 
-
-#{'x': 710, 'y': 804, 'w': 132, 'h': 44} where quantity owned should be.
-#
 # Auto-detection settings
 AUTO_DETECT = {
     'enabled': True,
@@ -99,7 +102,7 @@ PRODUCT_REGIONS = {
     "Astarron Crystals [pkg]": Region.VALLEY,
     "Vigilant Pickaxes [pkg]": Region.VALLEY,
     "Hard Noggin Helmets [pkg]": Region.VALLEY,
-    "Scrap Toy Blocks [pkg]": Region.VALLEY
+    "Scrap  Toy  Blocks  [pkg]": Region.VALLEY
 }
 
 # Keep this for backward compatibility with regex compiler

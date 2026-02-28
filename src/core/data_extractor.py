@@ -81,6 +81,14 @@ class DataExtractor:
         """
         Allows partial data! It just needs enough info for the current capture state.
         """
+        # Validate price ranges to reject OCR errors
+        if data.local_price is not None:
+            if data.local_price < 10 or data.local_price > 9500:
+                data.local_price = None  # Reject impossible price
+        
+        if data.friend_price is not None:
+            if data.friend_price < 10 or data.friend_price > 9000:
+                data.friend_price = None  # Reject impossible price
         # State 1 Check: We have a known Name AND a Local Price
         is_main_screen = bool(data.name in self.known_products and data.local_price and data.local_price > 0)
         
